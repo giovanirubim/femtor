@@ -15,25 +15,32 @@ class Item {
 		idMap[id] = this;
 		const main = $.new(`div#${id}.item`);
 		const head = $.new('div.head');
-		const buttons = $.new('div.buttons');
+		const rButtons = $.new('div.r-buttons');
+		const lButtons = $.new('div.l-buttons');
 		main.append(head);
 		const title = $.new('div.title');
-		head.append([buttons, title]);
+		head.append([rButtons, title, lButtons]);
 		this.id = id;
-		this.jdom = { main, title, buttons };
+		this.jdom = { main, title, lButtons, rButtons };
 		this.buttonMap = {};
 	}
 	setTitle(text) {
 		this.jdom.title.html($.txt(text));
 		return this;
 	}
-	addButton(imgSrc, name) {
+	addButton(iconClass, name, side) {
 		const {buttonMap, jdom} = this;
-		const button = $.new(`img.button[name="${name}"]`);
-		button.attr('src', imgSrc);
+		const button = $.new('div.button');
+		button.append($.new('i').attr('class', iconClass));
 		buttonMap[name] = button;
-		jdom.buttons.append(button);
+		jdom[side + 'Buttons'].append(button);
 		return this;
+	}
+	addButtonL() {
+		return this.addButton(...arguments, 'l');
+	}
+	addButtonR() {
+		return this.addButton(...arguments, 'r');
 	}
 	remove() {
 		this.jdom.main.remove();
@@ -61,10 +68,22 @@ export const createItem = id => new Item(id);
 export const init = () => {
 	leftbar = $('#leftbar');
 	leftbarContent = leftbar.children('.content');
-	const axis = new Item('axis').setTitle('Eixos')/*.addButton('img/add.png', 'add')*/;
-	const disk = new Item('disk').setTitle('Discos')/*.addButton('img/add.png', 'add')*/;
-	const mg = new Item('mg').setTitle('Mancais guia')/*.addButton('img/add.png', 'add')*/;
-	const me = new Item('me').setTitle('Mancais escora')/*.addButton('img/add.png', 'add')*/;
+	const axis = new Item('axis')
+		.setTitle('Eixos')
+		.addButtonL('fas fa-plus', 'add', 'l')
+		.addButtonR('fas fa-chevron-left', 'open-close');
+	const disk = new Item('disk')
+		.setTitle('Discos')
+		.addButtonL('fas fa-plus', 'add', 'l')
+		.addButtonR('fas fa-chevron-left', 'open-close');
+	const mg = new Item('mg')
+		.setTitle('Mancais Guia')
+		.addButtonL('fas fa-plus', 'add', 'l')
+		.addButtonR('fas fa-chevron-left', 'open-close');
+	const me = new Item('me')
+		.setTitle('Mancais Escora')
+		.addButtonL('fas fa-plus', 'add', 'l')
+		.addButtonR('fas fa-chevron-left', 'open-close');
 	append(axis);
 	append(disk);
 	append(mg);

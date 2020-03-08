@@ -30,14 +30,27 @@ canvas {
 	background-color: rgba(0, 0, 0, 0.1);
 	cursor: default;
 	margin-bottom: 5px;
-}
-#leftbar .item .buttons {
-	float: right;
 	margin-right: 5px;
+}
+#leftbar .item .title {
+	display: inline-block;
+	font-size: 14px;
+}
+#leftbar .item .r-buttons {
+	float: right;
 	margin-bottom: -10px;
 }
-#leftbar .item img {
+#leftbar .item .l-buttons {
+	display: inline-block;
+	margin-left: 5px;
+}
+#leftbar .item .button {
+	display: inline-block;
+	height: 18px;
+	width: 18px;
+	font-size: 14px;
 	cursor: pointer;
+	text-align: center;
 }
 
 #view3d {
