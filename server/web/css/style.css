@@ -1,18 +1,21 @@
 :root {
 	--leftbar-width: 230px;
 }
-body {
+* {
 	font-family: arial;
+	font-family: 'Roboto', Arial;
+}
+body {
 	background-color: #000;
 	margin: 0px;
 }
 canvas {
-	position: absolute;
+	position: fixed;
 	top: 0px;
-	left: 0px;
+	left: var(--leftbar-width);
 }
 #leftbar {
-	position: absolute;;
+	position: fixed;
 	top: 0px;
 	left: 0px;
 	bottom: 0px;

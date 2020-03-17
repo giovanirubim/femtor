@@ -1,5 +1,6 @@
 import * as cmdkey from './cmdkey.js';
 import * as view3d from './view3d.js';
+import * as forms from './forms.js';
 import animate from './animate.js';
 
 const minDist = 5;
@@ -145,6 +146,7 @@ const bindMouseControls = () => {
 	});
 
 	canvas[0].addEventListener('wheel', e => {
+		if (forms.length()) return;
 		const delta = e.deltaY/Math.abs(e.deltaY);
 		const d0 = view3d.getDistance();
 		const d1 = Math.exp(Math.log(d0) + delta*0.04);

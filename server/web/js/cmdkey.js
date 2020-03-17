@@ -1,3 +1,4 @@
+import * as forms from './forms.js';
 const map = {}
 export const bind = ({key, ctrl, shift, alt}, handler) => {
 	key += (ctrl|0);
@@ -7,6 +8,7 @@ export const bind = ({key, ctrl, shift, alt}, handler) => {
 };
 $(document).ready(() => {
 	$(window).bind('keydown', e => {
+		if (forms.length()) return;
 		let key = e.key.toLowerCase().replace('arrow', '');
 		key += (e.ctrlKey|0);
 		key += (e.shiftKey|0);

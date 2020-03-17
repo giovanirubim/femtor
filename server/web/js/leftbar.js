@@ -15,24 +15,23 @@ class Item {
 		idMap[id] = this;
 		const main = $.new(`div#${id}.item`);
 		const head = $.new('div.head');
+		const body = $.new('div.body');
 		const rButtons = $.new('div.r-buttons');
 		const lButtons = $.new('div.l-buttons');
-		main.append(head);
+		main.append([head, body]);
 		const title = $.new('div.title');
 		head.append([rButtons, title, lButtons]);
 		this.id = id;
 		this.jdom = { main, title, lButtons, rButtons };
-		this.buttonMap = {};
 	}
 	setTitle(text) {
 		this.jdom.title.html($.txt(text));
 		return this;
 	}
 	addButton(iconClass, name, side) {
-		const {buttonMap, jdom} = this;
-		const button = $.new('div.button');
+		const {jdom} = this;
+		const button = $.new(`div.button[button-name="${ name }"]`);
 		button.append($.new('i').attr('class', iconClass));
-		buttonMap[name] = button;
 		jdom[side + 'Buttons'].append(button);
 		return this;
 	}
