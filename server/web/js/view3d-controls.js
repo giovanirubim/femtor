@@ -135,7 +135,11 @@ const bindMouseControls = () => {
 		} else if (click.altKey) {
 			const {orientation0, orientation1} = click;
 			const orientation2 = view3d.getOrientationAt(x, y);
-			view3d.setOrientation(orientation0 + orientation2 - orientation1);
+			let o = orientation0 + orientation2 - orientation1;
+			if (e.ctrlKey) {
+				o = Math.round(o/(Math.PI/4))*(Math.PI/4);
+			}
+			view3d.setOrientation(o);
 			view3d.render();
 		} else {
 			const {rotation0, rotation1} = click;
