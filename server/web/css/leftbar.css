@@ -1,0 +1,56 @@
+#leftbar {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	background-color: #ccc;
+	width: var(--leftbar-width);
+}
+
+#leftbar > .content {
+	background-color: #fff;
+	padding: 5px;
+	padding-bottom: calc(5px - var(--container-spacing));
+}
+
+#leftbar .container {
+	background-color: #ccc;
+	margin-bottom: var(--container-spacing);
+}
+
+#leftbar .container .head {
+	font-size: var(--fsize-3);
+	height: var(--fsize-3)*1.5;
+	overflow: hidden;
+}
+
+#leftbar .container .head .title {
+	display: inline-block;
+}
+
+#leftbar .container .head .title,
+#leftbar .container .head .button {
+	/*vertical-align: middle;*/
+}
+
+#leftbar .container .head .button {
+	cursor: pointer;
+	font-size: var(--fsize-1);
+}
+#leftbar .container .head .button.add {
+	margin-left: 3px;
+}
+
+#leftbar .container .head .open-close {
+	float: right;
+	margin-right: var(--open-close-margin);
+}
+#leftbar .container.closed .head .open-close {
+	transform: rotate(90deg);
+}
+#leftbar .container > .content {
+	overflow: hidden;
+}
+#leftbar .container.closed > .content {
+	height: 0px;
+}

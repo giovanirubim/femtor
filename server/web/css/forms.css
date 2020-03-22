@@ -1,11 +1,3 @@
-:root {
-	--padding-x: 25px;
-	--padding-y: 25px;
-	--spacing-x: 10px;
-	--spacing-y: 20px;
-	--col-size: 86px;
-}
-
 div.popup-shadow {
 	z-index: 2;
 	position: fixed;
@@ -39,7 +31,7 @@ div.form-field {
 }
 
 div.form-title {
-	font-size: 18px;
+	font-size: var(--fsize-6);
 	margin-bottom: 15px;
 	border-bottom: 1px solid #ccc;
 }
@@ -59,15 +51,15 @@ div.form-field {
 .col-8 { width: calc(var(--col-size)*8 + var(--spacing-x)*(8 - 1)); }
 
 div.form-field-title {
-	height: 20px;
-	font-size: 16px;
+	height: calc(var(--fsize-3)*1.25);
+	font-size: var(--fsize-3);
 	font-weight: bold;
 	color: #000;
 }
 
 div.form-field input[type="text"] {
-	height: 26px;
-	font-size: 16px;
+	height: var(--input-sy);
+	font-size: var(--fsize-3);
 	width: 100%;
 	border: none;
 	border-bottom: 3px solid #aaa;
@@ -86,7 +78,7 @@ div.button-row input[type="button"] {
 	border: none;
 	background-color: transparent;
 	color: #444;
-	font-size: 16px;
+	font-size: var(--fsize-3);
 	height: 36px;
 	cursor: pointer;
 	border-radius: 3px;

@@ -1,0 +1,37 @@
+:root {
+	--leftbar-width: 0px;
+	--fsize-6: 24px;
+	--fsize-5: 20px;
+	--fsize-4: 18px;
+	--fsize-3: 16px;
+	--fsize-2: 14px;
+	--fsize-1: 12px;
+	--open-close-margin: 5px;
+	--container-spacing: 5px;
+}
+.popup-container {
+	--padding-x: 25px;
+	--padding-y: 25px;
+	--spacing-x: 10px;
+	--spacing-y: 20px;
+	--col-size: 92px;
+	--input-sy: 26px;
+}
+
+@media only screen and (max-width: 1200px) {
+	:root {
+		/*--leftbar-width: 180px;*/
+		--fsize-6: 18px;
+		--fsize-3: 12px;
+		--fsize-2: 10px;
+		--open-close-margin: 3px;
+	}
+	.popup-container {
+		--padding-x: 25px;
+		--padding-y: 25px;
+		--spacing-x: 10px;
+		--spacing-y: 20px;
+		--col-size: 65px;
+		--input-sy: 22px;
+	}
+}

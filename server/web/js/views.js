@@ -17,9 +17,4 @@ export const openNewAxisForm = () => {
 	}})
 };
 
-$(document).ready(() => {
-	$('#leftbar').on('click', '[button-name="add"]', function(){
-		const button = $(this);
-		openNewAxisForm();
-	});
-});
+window.openNewAxisForm = openNewAxisForm;
