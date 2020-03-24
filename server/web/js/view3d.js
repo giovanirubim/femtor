@@ -296,7 +296,8 @@ class Geometry {
 }
 
 class Cylinder {
-	constructor(r0, r1, length) {
+	constructor(key, r0, r1, length) {
+		this.key = key !== undefined? key: null;
 		this.r0 = r0;
 		this.r1 = r1;
 		this.length = length;
@@ -464,11 +465,33 @@ export const render = () => {
 	renderCylinders();
 };
 
-export const addCylinder = (innerRadius, outerRadius, length) => {
-	const cylinder = new Cylinder(innerRadius, outerRadius, length);
+// key: Something to identify the cylinder later
+export const addCylinder = (key, innerRadius, outerRadius, length) => {
+	const cylinder = new Cylinder(key, innerRadius, outerRadius, length);
 	cylinders.push(cylinder);
 	cylinderMappingUpdated = false;
 	return cylinder;
+};
+
+export const removeCylinder = (key) => {
+	let index = -1;
+	for (let i=cylinders.length; i;) {
+		const cylinder = cylinders[--i];
+		if (cylinder.key === key) {
+			index = i;
+			break;
+		}
+	}
+	if (index === -1) {
+		throw 'Cylinder key not found';
+	}
+	cylinders.splice(index, 1);
+	cylinderMappingUpdated = false;
+};
+
+export const clearCylinders = () => {
+	cylinders.length = 0;
+	cylinderMappingUpdated = false;
 };
 
 export const elementAt = (x, y) => {
@@ -488,7 +511,7 @@ export const elementAt = (x, y) => {
 	const [r, g, b] = pixel;
 	const index = colorToIndex(pixel);
 	if (index === -1) return null;
-	return cylinders[index];
+	return cylinders[index].key;
 };
 
 export const getShiftAt = (x, y) => {
