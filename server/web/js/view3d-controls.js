@@ -133,14 +133,29 @@ const bindMouseControls = () => {
 			view3d.setShift(shift0 + shift2 - shift1);
 			view3d.render();
 		} else if (click.altKey) {
+			
 			const {orientation0, orientation1} = click;
 			const orientation2 = view3d.getOrientationAt(x, y);
-			let o = orientation0 + orientation2 - orientation1;
-			if (e.ctrlKey) {
-				o = Math.round(o/(Math.PI/4))*(Math.PI/4);
+			const ang = orientation0 + orientation2 - orientation1;
+			const step = Math.PI/2;
+			const a = ang;
+			const b = Math.round(ang/step)*step;
+
+			// How near the angle is to a right angle (0 to 1)
+			const near = 1 - Math.abs(b - a)/step*2;
+
+			// Free range
+			const cut = 0.8;
+
+			if (near >= cut) {
+				view3d.setOrientation(b);
+			} else {
+				const val = near/cut;
+				view3d.setOrientation(b*val + a*(1 - val));
 			}
-			view3d.setOrientation(o);
+
 			view3d.render();
+
 		} else {
 			const {rotation0, rotation1} = click;
 			const rotation2 = view3d.getRotationAt(x, y);
