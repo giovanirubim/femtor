@@ -41,7 +41,7 @@ const insert = (obj, type) => {
 class Axis {
 	constructor() {
 		this.id = null;
-		this.name = 'Unnamed axis';
+		this.name = 'Eixo sem nome';
 		this.description = '';
 		this.outer_diameter = 0;
 		this.inner_diameter = 0;
