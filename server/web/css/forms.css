@@ -1,5 +1,11 @@
 div.popup-shadow {
 	--button-sy: calc(var(--w)*36);
+	--padding-x: calc(var(--w)*25);
+	--padding-y: calc(var(--w)*25);
+	--spacing-x: calc(var(--w)*10);
+	--spacing-y: calc(var(--w)*20);
+	--col-size: calc(var(--w)*92);
+	--input-sy: calc(var(--w)*26);
 }
 div.popup-shadow {
 	z-index: 2;

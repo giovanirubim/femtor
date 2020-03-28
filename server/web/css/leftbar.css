@@ -5,14 +5,20 @@
 	bottom: 0px;
 	background-color: #fff;
 	width: var(--leftbar-width);
+	--item-sy: calc(var(--w)*24);
+	--open-close-margin: calc(var(--w)*5);
+	--container-spacing: calc(var(--w)*5);
 	--item-padding-top: calc(var(--fsize-1)*0.25);
 	--item-padding-left: calc(var(--fsize-1)*0.5);
+	--in-item-sy: calc(var(--item-sy)*0.75);
 }
 
 #leftbar > .content {
 	background-color: #fff;
-	padding: 5px;
+	--padding: 5px;
+	padding: var(--padding);
 	padding-bottom: calc(5px - var(--container-spacing));
+	width: calc(var(--leftbar-width) - var(--padding)*2);
 }
 
 #leftbar .container {
@@ -42,15 +48,22 @@
 	cursor: default;
 }
 
-#leftbar .container .head .title,
-#leftbar .container .head .button {
+#leftbar .button,
+#leftbar .container .head .title {
 	display: inline-block;
 	vertical-align: middle;
 }
 
+#leftbar .container .head .title,
+#leftbar .container .head .button {
+	font-size: var(--fsize-1);
+}
+
 #leftbar .container .head .button {
 	cursor: pointer;
-	font-size: var(--fsize-1);
+}
+
+#leftbar .item .button {
 }
 
 #leftbar .container .head .button.add {
@@ -76,10 +89,6 @@
 	display: none;
 }
 
-#leftbar .container > .content .item:nth-child(1) {
-	margin-top: 0px;
-}
-
 #leftbar .container > .content .item {
 	--padding: calc(var(--w)*4);
 	padding-bottom: var(--padding);
@@ -87,7 +96,7 @@
 	padding-right: var(--padding);
 }
 #leftbar .container > .content .item > .content {
-	height: var(--item-sy);
+	height: var(--in-item-sy);
 	background-color: #777;
 }
 
