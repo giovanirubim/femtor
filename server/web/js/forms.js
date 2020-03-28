@@ -79,7 +79,7 @@ class Form {
 		field.append([dTitle, dContent]);
 		if (type === 'text') {
 			field.addClass('form-field-text');
-			dContent.append($.new(`input[type="text"][name="${ name }"]`));
+			dContent.append($.new(`input[type="text"][name="${ name }"][spellcheck="false"]`));
 		}
 		currentRow.append(field);
 		return this;
