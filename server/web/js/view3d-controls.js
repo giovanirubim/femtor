@@ -90,6 +90,7 @@ const bindMouseControls = () => {
 	};
 
 	canvas.bind('mousedown', e => {
+		e.preventDefault();
 		if (e.button !== 0) return;
 		const x = e.offsetX;
 		const y = e.offsetY;
