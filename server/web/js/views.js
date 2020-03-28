@@ -42,7 +42,9 @@ export const newAxis = () => {
 export const editAxis = (axis) => {
 	const {id} = axis;
 	const form = axisForm('Editar eixo', obj => {
-		shell.updateAxis({id, ...obj});
+		if (shell.updateAxis({id, ...obj})) {
+			shell.storeLocal();
+		}
 	});
 	form.find('[name]').each(function(){
 		const input = $(this);

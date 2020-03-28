@@ -113,6 +113,10 @@ export const remove = arg => {
 	item.remove();
 };
 
+export const updateTitle = (id, title) => {
+	$('#pid'+id).find('.title').html($.txt(title));
+};
+
 export const clear = () => {
 	$('.item').not('.template').remove();
 };

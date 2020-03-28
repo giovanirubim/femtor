@@ -80,13 +80,13 @@ export const updateAxisInstance = data => {
 // Atualiza um eixo
 export const updateAxis = data => {
 	const {id} = data;
-	const {obj} = project.find(id);
+	const axis = project.find(id).obj;
 	const changed = {};
 	let updated = false;
-	for (let attr in obj) {
+	for (let attr in axis) {
 		const newVal = data[attr];
-		if (newVal !== undefined && newVal !== obj[attr]) {
-			obj[attr] = newVal;
+		if (newVal !== undefined && newVal !== axis[attr]) {
+			axis[attr] = newVal;
 			changed[attr] = true;
 			updated = true;
 		}
@@ -94,8 +94,8 @@ export const updateAxis = data => {
 	if (updated === false) {
 		return false;
 	}
-	const r0 = obj.inner_diameter/2;
-	const r1 = obj.outer_diameter/2;
+	const r0 = axis.inner_diameter/2;
+	const r1 = axis.outer_diameter/2;
 	if (changed['inner_diameter'] || changed['outer_diameter']) {
 		const instances = project.listByAttr('axis_instance', 'axis_id', id);
 		instances.forEach(instance => {
@@ -103,6 +103,10 @@ export const updateAxis = data => {
 			view3d.updateCylinder(id, r0, r1, null);
 		});
 		handleViewChange();
+	}
+	if (changed['name']) {
+		leftbar.updateTitle(axis.id, axis.name);
+		// TODO: Alterar rótulos das instâncias também
 	}
 	return true;
 };
