@@ -77,6 +77,36 @@ export const updateAxisInstance = data => {
 	handleViewChange();
 };
 
+// Atualiza um eixo
+export const updateAxis = data => {
+	const {id} = data;
+	const {obj} = project.find(id);
+	const changed = {};
+	let updated = false;
+	for (let attr in obj) {
+		const newVal = data[attr];
+		if (newVal !== undefined && newVal !== obj[attr]) {
+			obj[attr] = newVal;
+			changed[attr] = true;
+			updated = true;
+		}
+	}
+	if (updated === false) {
+		return false;
+	}
+	const r0 = obj.inner_diameter/2;
+	const r1 = obj.outer_diameter/2;
+	if (changed['inner_diameter'] || changed['outer_diameter']) {
+		const instances = project.listByAttr('axis_instance', 'axis_id', id);
+		instances.forEach(instance => {
+			const {id} = instance;
+			view3d.updateCylinder(id, r0, r1, null);
+		});
+		handleViewChange();
+	}
+	return true;
+};
+
 // Limpa o projeto
 export const clear = () => {
 	leftbar.clear();

@@ -1,3 +1,4 @@
+import * as project from './project.js';
 import * as shell from './shell.js';
 import * as view3d from './view3d.js';
 import * as views from './views.js';
@@ -69,7 +70,13 @@ const bindButtons = () => {
 		shell.removeAxis(id);
 	});
 	$('#add_axis').bind('click', () => {
-		views.openNewAxisForm();
+		views.newAxis();
+	});
+	leftbar.on('click', '.edit-axis', function(){
+		const item = $(this).closest('.item');
+		const id = item.attr('id').substr(3);
+		const {obj} = project.find(id);
+		views.editAxis(obj);
 	});
 };
 
