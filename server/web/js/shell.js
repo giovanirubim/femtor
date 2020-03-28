@@ -1,4 +1,5 @@
 import * as project from './project.js';
+import * as leftbar from './leftbar.js';
 import * as view3d from './view3d.js';
 import * as ri from './ri-format.js';
 
@@ -20,6 +21,7 @@ const handleViewChange = () => {
 // Insere um eixo a partir dos dados contidos no objeto data
 export const addAxis = data => {
 	const obj = project.add('axis', data);
+	leftbar.add('axis', obj);
 	return obj;
 };
 
@@ -34,6 +36,22 @@ export const addAxisInstance = data => {
 	view3d.addCylinder(obj.id, inner_diameter/2, outer_diameter/2, obj.length);
 	handleViewChange();
 	return obj;
+};
+
+// Remove um eixo
+// O argumento pode ser o id, o próprio objeto, ou um objeto de mesmo id
+export const removeAxis = arg => {
+	const id = arg instanceof Object? arg.id: arg;
+	const {obj, type} = project.find(id);
+	if (!obj) {
+		throw 'Invalid argument';
+	}
+	if (type !== 'axis') {
+		throw 'The object found is not an axis';
+	}
+	const instances = project.listByAttr('axis_instance', 'axis_id', id);
+	console.log(instances);
+	instances.forEach(removeAxisInstance);
 };
 
 // Remove uma instância de eixo
@@ -62,6 +80,7 @@ export const updateAxisInstance = data => {
 
 // Limpa o projeto
 export const clear = () => {
+	leftbar.clear();
 	project.clear();
 	view3d.clearCylinders();
 	handleViewChange();

@@ -48,22 +48,15 @@
 	cursor: default;
 }
 
-#leftbar .button,
-#leftbar .container .head .title {
-	display: inline-block;
-	vertical-align: middle;
-}
-
 #leftbar .container .head .title,
-#leftbar .container .head .button {
+#leftbar .button {
+	vertical-align: middle;
+	display: inline-block;
 	font-size: var(--fsize-1);
 }
 
-#leftbar .container .head .button {
+#leftbar .button {
 	cursor: pointer;
-}
-
-#leftbar .item .button {
 }
 
 #leftbar .container .head .button.add {
@@ -95,9 +88,10 @@
 	padding-left: var(--padding);
 	padding-right: var(--padding);
 }
+
 #leftbar .container > .content .item > .content {
 	height: var(--in-item-sy);
-	background-color: #777;
+	background-color: #444;
 }
 
 #leftbar .option {
@@ -107,6 +101,48 @@
 	background-color: #ddd;
 	color: #222;
 }
+
 #leftbar .option label {
 	cursor: inherit;
+}
+
+#leftbar .item {
+	color: #ccc;
+}
+
+#leftbar .item .title {
+	font-size: var(--fsize-1);
+	padding-top: calc(var(--w)*2);
+	margin-left: calc(var(--w)*3);
+	display: inline-block;
+	cursor: default;
+}
+
+#leftbar .item .right-buttons {
+	float: right;
+	margin-top: calc(var(--w)*2);
+}
+
+#leftbar .item .right-buttons {
+	display: none;
+}
+
+#leftbar .item:hover .right-buttons {
+	display: block;
+}
+
+#leftbar .item .right-buttons .button {
+	width: calc(var(--w)*14);
+	height: calc(var(--w)*14);
+	margin-right: calc(var(--w)*4);
+	text-align: center;
+	border-radius: 50%;
+}
+
+#leftbar .item .right-buttons .button:hover {
+	color: #fff;
+}
+
+.template {
+	display: none;
 }

@@ -22,8 +22,12 @@ let typeMap = {};
 const insert = (obj, type) => {
 	const array = database[type];
 	let {id} = obj;
-	if (idMap[id]) throw 'Database id colision';
-	if (!id) id = obj.id = ++database.last_id;
+	if (idMap[id]) {
+		throw 'Database id colision';
+	}
+	if (!id) {
+		id = obj.id = ++database.last_id;
+	}
 	obj.id = id;
 	idMap[id] = obj;
 	typeMap[id] = type;
@@ -76,14 +80,18 @@ export const find = (id, includeIndex) => {
 	const array = database[type] || [];
 	const obj = idMap[id] || null;
 	let index = null;
-	if (includeIndex) index = array.indexOf(obj);
+	if (includeIndex) {
+		index = array.indexOf(obj);
+	}
 	return {obj, type, index};
 };
 
 // Remove um elemento da base de dados
 export const remove = arg => {
 	const obj = arg instanceof Object? arg: idMap[arg];
-	if (!obj) throw 'Invalid argument';
+	if (!obj) {
+		throw 'Invalid argument';
+	}
 	const {id} = obj;
 	const type = typeMap[id];
 	const array = database[type];
@@ -93,9 +101,25 @@ export const remove = arg => {
 	delete typeMap[id];
 };
 
+export const listByAttr = (type, attr, value) => {
+	const array = database[type];
+	if (!array) {
+		throw 'Invalid type';
+	}
+	const result = [];
+	array.forEach(obj => {
+		if (obj[attr] == value) {
+			result.push(obj);
+		}
+	});
+	return result;
+};
+
 export const add = (type, data) => {
 	const constructor = typeToClass[type];
-	if (!constructor) throw 'Invalid type';
+	if (!constructor) {
+		throw 'Invalid type';
+	}
 	const obj = new constructor();
 	for (let attr in obj) {
 		const value = data[attr];
