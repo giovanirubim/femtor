@@ -15,25 +15,30 @@
 	<body>
 		<div id="leftbar">
 			<div class="content">
-				<div class="container closed">
+				<div class="option">
+					<div class="title">Abrir</div>
+					<input id="loadFile" type="file" style="display:none;" accept=".ri,.json">
+				</div>
+				<div class="option" id="exportRi">
+					<div class="title">Exportar RI</div>
+				</div>
+				<div class="option" id="exportJson">
+					<div class="title">Exportar JSON</div>
+				</div>
+				<div class="container">
 					<div class="head">
 						<div class="title">Eixos</div>
-						<i class="fas fa-plus button add"></i>
+						<div id="add_axis" class="button add">
+							<i class="fas fa-plus-square"></i>
+						</div>
 						<div class="open-close">
 							<i class="fas fa-chevron-down button"></i>
 						</div>
 					</div>
-					<div class="content"></div>
-				</div>
-				<div class="container closed">
-					<div class="head">
-						<div class="title">Discos</div>
-						<i class="fas fa-plus button add"></i>
-						<div class="open-close">
-							<i class="fas fa-chevron-down button"></i>
-						</div>
+					<div class="content">
+						<div class="item"><div class="content"></div></div>
+						<div class="item"><div class="content"></div></div>
 					</div>
-					<div class="content"></div>
 				</div>
 			</div>
 		</div>

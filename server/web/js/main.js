@@ -4,6 +4,16 @@ import * as shell from './shell.js';
 import './views.js';
 import './view3d-controls.js';
 
+const downloadTextFile = (fileName, content) => {
+	var element = document.createElement('a');
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+	element.setAttribute('download', fileName);
+	element.style.display = 'none';
+	document.body.appendChild(element);
+	element.click();
+	document.body.removeChild(element);
+};
+
 let esx = null;
 let esy = null;
 const handleResize = () => {
@@ -18,27 +28,52 @@ const handleResize = () => {
 	return true;
 };
 
+const bindExportJSON = () => {
+	$('#exportJson').bind('click', () => {
+		const json = shell.generateJson();
+		downloadTextFile('Project.json', json);
+	});
+};
+
+const bindLoadFile = () => {
+	const input = $('#loadFile');
+	input.bind('change', () => {
+		const {files} = input[0];
+		const [file] = files;
+		if (!file) {
+			return;
+		}
+		const reader = new FileReader();
+		reader.onload = () => {
+			const {name} = file;
+			const {result} = reader;
+			const ext = name.substr(name.lastIndexOf('.') + 1).toLowerCase();
+			if (ext === 'ri') {
+				shell.loadRI(result);
+			} else {
+				shell.loadJSON(result);
+			}
+			shell.storeLocal();
+		};
+		reader.readAsText(file);
+	});
+	input.closest('.option').bind('click', e => {
+		const target = e.target || e.srcElement;
+		if (target !== input[0]) {
+			input.trigger('click');
+		}
+	});
+};
+
 $(document).ready(() => {
 	leftbar.init();
+	shell.loadLocal();
 	const canvas = $(view3d.getCanvas());
 	$('#view3d').append(canvas);
 	handleResize();
 	$(window).bind('resize', handleResize);
+	bindLoadFile();
+	bindExportJSON();
 });
 
-let thin = shell.addAxis({
-	inner_diameter: 1,
-	outer_diameter: 5
-});
-let medium = shell.addAxis({
-	inner_diameter: 1,
-	outer_diameter: 15
-});
-let large = shell.addAxis({
-	inner_diameter: 1,
-	outer_diameter: 30
-});
-shell.addAxisInstance({ axis_id: medium.id, length: 5 });
-shell.addAxisInstance({ axis_id: large.id, length: 5 });
-shell.addAxisInstance({ axis_id: thin.id, length: 50 });
 window.shell = shell;

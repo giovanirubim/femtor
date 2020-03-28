@@ -2,13 +2,11 @@
 	font-family: arial;
 	font-family: 'Roboto', Arial;
 }
-
 body {
 	background-color: #000;
 	margin: 0px;
 	font-size: 0px;
 }
-
 #view3d {
 	position: absolute;
 	top: 0px;

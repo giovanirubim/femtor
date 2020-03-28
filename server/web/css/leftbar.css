@@ -3,8 +3,10 @@
 	top: 0px;
 	left: 0px;
 	bottom: 0px;
-	background-color: #ccc;
+	background-color: #fff;
 	width: var(--leftbar-width);
+	--item-padding-top: calc(var(--fsize-1)*0.25);
+	--item-padding-left: calc(var(--fsize-1)*0.5);
 }
 
 #leftbar > .content {
@@ -14,43 +16,88 @@
 }
 
 #leftbar .container {
+	border-radius: calc(var(--item-sy)*0.125);
 	background-color: #ccc;
+}
+
+#leftbar .container,
+#leftbar .option {
 	margin-bottom: var(--container-spacing);
 }
 
 #leftbar .container .head {
-	font-size: var(--fsize-3);
-	height: var(--fsize-3)*1.5;
+	height: var(--item-sy);
 	overflow: hidden;
+}
+
+#leftbar .option .title,
+#leftbar .container .head .title {
+	font-size: var(--fsize-2);
+	padding-top: calc(var(--item-padding-top));
+	margin-left: var(--item-padding-left);
 }
 
 #leftbar .container .head .title {
 	display: inline-block;
+	cursor: default;
 }
 
 #leftbar .container .head .title,
 #leftbar .container .head .button {
-	/*vertical-align: middle;*/
+	display: inline-block;
+	vertical-align: middle;
 }
 
 #leftbar .container .head .button {
 	cursor: pointer;
 	font-size: var(--fsize-1);
 }
+
 #leftbar .container .head .button.add {
-	margin-left: 3px;
+	margin-top: calc(var(--w)*4);
+	margin-left: calc(var(--w)*4);
 }
 
 #leftbar .container .head .open-close {
 	float: right;
+	margin-top: var(--open-close-margin);
 	margin-right: var(--open-close-margin);
 }
+
 #leftbar .container.closed .head .open-close {
 	transform: rotate(90deg);
 }
+
 #leftbar .container > .content {
 	overflow: hidden;
 }
+
 #leftbar .container.closed > .content {
-	height: 0px;
+	display: none;
+}
+
+#leftbar .container > .content .item:nth-child(1) {
+	margin-top: 0px;
+}
+
+#leftbar .container > .content .item {
+	--padding: calc(var(--w)*4);
+	padding-bottom: var(--padding);
+	padding-left: var(--padding);
+	padding-right: var(--padding);
+}
+#leftbar .container > .content .item > .content {
+	height: var(--item-sy);
+	background-color: #777;
+}
+
+#leftbar .option {
+	border-radius: calc(var(--item-sy)*0.25);
+	height: var(--item-sy);
+	cursor: pointer;
+	background-color: #ddd;
+	color: #222;
+}
+#leftbar .option label {
+	cursor: inherit;
 }

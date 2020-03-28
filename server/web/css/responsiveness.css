@@ -1,37 +1,29 @@
 :root {
-	--leftbar-width: 0px;
-	--fsize-6: 24px;
-	--fsize-5: 20px;
-	--fsize-4: 18px;
-	--fsize-3: 16px;
-	--fsize-2: 14px;
-	--fsize-1: 12px;
-	--open-close-margin: 5px;
-	--container-spacing: 5px;
+	--leftbar-width: 250px;
+	--w: calc(var(--leftbar-width)/250);
+	--fsize-6: calc(var(--w)*24);
+	--fsize-5: calc(var(--w)*20);
+	--fsize-4: calc(var(--w)*18);
+	--fsize-3: calc(var(--w)*16);
+	--fsize-2: calc(var(--w)*14);
+	--fsize-1: calc(var(--w)*12);
+	--open-close-margin: calc(var(--w)*5);
+	--container-spacing: calc(var(--w)*5);
+}
+#leftbar {
+	--item-sy: calc(var(--w)*24);
 }
 .popup-container {
-	--padding-x: 25px;
-	--padding-y: 25px;
-	--spacing-x: 10px;
-	--spacing-y: 20px;
-	--col-size: 92px;
-	--input-sy: 26px;
+	--padding-x: calc(var(--w)*25);
+	--padding-y: calc(var(--w)*25);
+	--spacing-x: calc(var(--w)*10);
+	--spacing-y: calc(var(--w)*20);
+	--col-size: calc(var(--w)*92);
+	--input-sy: calc(var(--w)*26);
 }
 
 @media only screen and (max-width: 1200px) {
 	:root {
-		/*--leftbar-width: 180px;*/
-		--fsize-6: 18px;
-		--fsize-3: 12px;
-		--fsize-2: 10px;
-		--open-close-margin: 3px;
-	}
-	.popup-container {
-		--padding-x: 25px;
-		--padding-y: 25px;
-		--spacing-x: 10px;
-		--spacing-y: 20px;
-		--col-size: 65px;
-		--input-sy: 22px;
+		--leftbar-width: 180px;
 	}
 }
