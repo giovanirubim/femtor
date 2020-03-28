@@ -13,7 +13,7 @@ const TO_DEG = 180/PI;
 const nSides = 60; // Number of sides in a "circle"
 const step = TAU/nSides;
 const totalRadius = 10;
-const defaultStripeSize = totalRadius*0.0075;
+const defaultStripeSize = totalRadius*0.002;
 const initialDistance = 50;
 
 // ========================<-------------------------------------------->======================== //
@@ -38,8 +38,8 @@ const highlightColor = new Float32Array([0, .5, 1]);
 const bgColor = new Float32Array([.1, .1, .1]);
 const colors = {
 	solidCylinder: {
-		color1: new Float32Array([.866, .866, .866]),
-		color2: new Float32Array([.4, .5, .6]),
+		cylinder_color: new Float32Array([.866, .866, .866]),
+		stripe_color: new Float32Array([.6, .6, .6]),
 	}
 };
 
@@ -101,6 +101,8 @@ const cylinders = [];
 let totalLength = null;
 let modelRadius = null;
 let modelScale = null;
+
+let keyToCylinder = {};
 
 const mapCylinders = () => {
 
@@ -421,8 +423,8 @@ const renderCylinders = () => {
 	gl.useProgram(prog.ref);
 	prog.setMat4('projection', camera.projection);
 	prog.setMat4('world', camera.world);
-	prog.setVec3('color1', colors.solidCylinder.color1);
-	prog.setVec3('color2', colors.solidCylinder.color2);
+	prog.setVec3('cylinder_color', colors.solidCylinder.cylinder_color);
+	prog.setVec3('stripe_color', colors.solidCylinder.stripe_color);
 	const geometry = geometries.solidCylinder;
 	cylinders.forEach(cylinder => {
 		prog.setFloat('highlighted', cylinder.highlighted);
@@ -467,31 +469,48 @@ export const render = () => {
 
 // key: Something to identify the cylinder later
 export const addCylinder = (key, innerRadius, outerRadius, length) => {
+	if (key in keyToCylinder) {
+		throw 'Cylinder key colision';
+	}
 	const cylinder = new Cylinder(key, innerRadius, outerRadius, length);
 	cylinders.push(cylinder);
 	cylinderMappingUpdated = false;
+	keyToCylinder[key] = cylinder;
 	return cylinder;
 };
 
 export const removeCylinder = (key) => {
-	let index = -1;
-	for (let i=cylinders.length; i;) {
-		const cylinder = cylinders[--i];
-		if (cylinder.key === key) {
-			index = i;
-			break;
-		}
-	}
-	if (index === -1) {
+	const cylinder = keyToCylinder[key];
+	if (cylinder === undefined) {
 		throw 'Cylinder key not found';
 	}
+	const index = cylinders.indexOf(cylinder);
+	delete keyToCylinder[key];
 	cylinders.splice(index, 1);
+	cylinderMappingUpdated = false;
+};
+
+export const updateCylinder = (key, innerRadius, outerRadius, length) => {
+	const cylinder = keyToCylinder[key];
+	if (cylinder === undefined) {
+		throw 'Cylinder key not found';
+	}
+	if (innerRadius != null) {
+		cylinder.r0 = innerRadius;
+	}
+	if (outerRadius != null) {
+		cylinder.r1 = outerRadius;
+	}
+	if (length != null) {
+		cylinder.length = length;
+	}
 	cylinderMappingUpdated = false;
 };
 
 export const clearCylinders = () => {
 	cylinders.length = 0;
 	cylinderMappingUpdated = false;
+	keyToCylinder = {};
 };
 
 export const elementAt = (x, y) => {
@@ -683,8 +702,8 @@ shaders.vertex.solidCylinder = createShader(gl, `
 	layout (location = 3) in float cVal;
 	layout (location = 4) in vec3 normal;
 	
-	uniform vec3 color1;
-	uniform vec3 color2;
+	uniform vec3 cylinder_color;
+	uniform vec3 stripe_color;
 	uniform vec4 rVals;
 	uniform vec4 zVals;
 	uniform mat4 world;
@@ -700,7 +719,7 @@ shaders.vertex.solidCylinder = createShader(gl, `
 		float z = dot(zMask, zVals);
 		
 		vCoord = (world*vec4(vec3(coord*r, z), 1.0)).xyz;
-		vColor = mix(color1, color2, cVal);
+		vColor = mix(cylinder_color, stripe_color, cVal);
 		vNormal = mat3(world)*normal;
 		
 		gl_Position = projection*vec4(vCoord, 1.0);
@@ -738,7 +757,7 @@ shaders.fragment.solid = createShader(gl, `
 
 // Program for solid objects seen by the camera
 programs.solidCylinder = new Program(gl, shaders.vertex.solidCylinder, shaders.fragment.solid,
-	'projection', 'world', 'rVals', 'zVals', 'color1', 'color2', 'highlighted');
+	'projection', 'world', 'rVals', 'zVals', 'cylinder_color', 'stripe_color', 'highlighted');
 
 geometries.solidCylinder = buildSolidCylinderGeometry();
 
