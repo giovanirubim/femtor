@@ -98,8 +98,8 @@ export const loadLocal = () => {
 };
 
 // Carrega uma string com o conteúdo de um arquivo RI
-export const loadRI = src => {
-	ri.load(src);
+export const loadRI = (src, config) => {
+	ri.load(src, config);
 };
 
 // Carrega uma string com um JSON contendo o projeto
