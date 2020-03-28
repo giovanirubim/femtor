@@ -1,7 +1,7 @@
 import * as view3d from './view3d.js';
 import * as leftbar from './leftbar.js';
 import * as shell from './shell.js';
-import './views.js';
+import * as views from './views.js';
 import './view3d-controls.js';
 
 const downloadTextFile = (fileName, content) => {
@@ -65,6 +65,12 @@ const bindLoadFile = () => {
 	});
 };
 
+const bindLeftbarButtons = () => {
+	$('#add_axis').bind('click', () => {
+		views.openNewAxisForm();
+	});
+};
+
 $(document).ready(() => {
 	leftbar.init();
 	shell.loadLocal();
@@ -74,6 +80,7 @@ $(document).ready(() => {
 	$(window).bind('resize', handleResize);
 	bindLoadFile();
 	bindExportJSON();
+	bindLeftbarButtons();
 });
 
 window.shell = shell;

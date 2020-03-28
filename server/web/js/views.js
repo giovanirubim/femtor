@@ -16,5 +16,3 @@ export const openNewAxisForm = () => {
 		form.close();
 	}})
 };
-
-window.openNewAxisForm = openNewAxisForm;
