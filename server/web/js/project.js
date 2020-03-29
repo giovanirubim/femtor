@@ -25,8 +25,10 @@ const insert = (obj, type) => {
 	if (idMap[id]) {
 		throw 'Database id colision';
 	}
-	if (!id) {
+	if (id == null) {
 		id = obj.id = ++database.last_id;
+	} else if (id > database.last_id) {
+		database.last_id = id;
 	}
 	obj.id = id;
 	idMap[id] = obj;
