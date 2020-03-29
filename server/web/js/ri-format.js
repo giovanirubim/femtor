@@ -1,3 +1,9 @@
+// ========================<-------------------------------------------->======================== //
+// Módulo responsável pela importação de projetos no formato RI
+
+// ========================<-------------------------------------------->======================== //
+// Módulos acessados
+
 import * as shell from './shell.js';
 
 // Carrega um projeto de uma string 'src' no formato RI
@@ -58,3 +64,6 @@ export const load = (src, {mergeAxisInstances = true} = {}) => {
 	});
 
 };
+
+// End of File
+// ========================<-------------------------------------------->======================== //

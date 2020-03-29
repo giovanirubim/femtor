@@ -1,6 +1,15 @@
+// ========================<-------------------------------------------->======================== //
+// Módulo que abre janelas flutuantes na página e formulários de preenchimento
+
+// ========================<-------------------------------------------->======================== //
+// Módulos acessados
+
 import animate from './animate.js';
+
+// vetor com todos os popups abertos
 let popups = [];
 
+// Classe de uma janela flutuante
 class Popup {
 	constructor(config) {
 		let content;
@@ -24,9 +33,13 @@ class Popup {
 		}, 0);
 		popups.push(this);
 	}
+
+	// Centraliza o popup quando a janela é redimensionada
 	handleResize() {
 		const {onresize, shadow, wrapper} = this;
-		if (onresize) onresize(this);
+		if (onresize) {
+			onresize(this);
+		}
 		const mx = Math.max(0, Math.floor((window.innerWidth - wrapper.sx())*0.5));
 		const my = Math.max(0, Math.floor((window.innerHeight - wrapper.sy())*0.4));
 		wrapper.css({
@@ -35,6 +48,8 @@ class Popup {
 		});
 		return this;
 	}
+
+	// Fecha o popup
 	close() {
 		const index = popups.indexOf(this);
 		if (index === -1) return this;
@@ -45,15 +60,20 @@ class Popup {
 		});
 		return this;
 	}
+
+	// Busca um selector dentro do popup
 	find(selector) {
 		return this.shadow.find(selector);
 	}
+
+	// Adiciona elementos dom dentro do popup
 	add(element) {
 		this.container.append(element);
 		return this;
 	}
 }
 
+// Classe de um formulário
 class Form {
 	constructor() {
 		const popup = new Popup();
@@ -63,10 +83,14 @@ class Form {
 		this.popup = popup;
 		this.currentRow = null;
 	}
+
+	// Define o título do formulário
 	title(value) {
 		this.popup.add($.new('div.form-title').append($.txt(value)));
 		return this;
 	}
+
+	// Adiciona um campo ao formulário
 	addInput({title, type, name, initial, col = 1}) {
 		let {currentRow} = this;
 		if (currentRow === null || !currentRow.hasClass('field-row')) {
@@ -84,6 +108,8 @@ class Form {
 		currentRow.append(field);
 		return this;
 	}
+
+	// Adiciona um botão ao formulário
 	addButton({label, color, col = 1, bg, click}) {
 		let {currentRow} = this;
 		if (currentRow === null || !currentRow.hasClass('button-row')) {
@@ -96,6 +122,8 @@ class Form {
 		currentRow.prepend(button);
 		return this;
 	}
+
+	// Retorna todos os dados contidos no forumlário em um objeto
 	data() {
 		const data = {};
 		this.find('input').each(function(){
@@ -106,20 +134,28 @@ class Form {
 		});
 		return data;
 	}
+
+	// Quebra a linha atual
 	endl() {
 		this.currentRow = null;
 		return this;
 	}
-	find() {
-		return this.popup.find(...arguments);
+
+	// Busca por um selector
+	find(selector) {
+		return this.popup.find(selector);
 	}
+
+	// Fecha o formulário
 	close() {
 		this.popup.close();
 		return this;
 	}
 };
 
-export const create = arg => new Form(arg);
+export const create = () => new Form();
+
+// Quantidade de forumlários abertos
 export const length = () => popups.length;
 
 window.addEventListener('resize', () => {

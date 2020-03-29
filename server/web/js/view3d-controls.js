@@ -1,16 +1,27 @@
+// ========================<-------------------------------------------->======================== //
+// Módulos acessados
+
 import * as cmdkey from './cmdkey.js';
 import * as view3d from './view3d.js';
 import * as forms from './forms.js';
 import animate from './animate.js';
 
+// ========================<-------------------------------------------->======================== //
+
+// Distância mínima que o cursor deve ser movido em pixels para que um evento de clicar e arrastar
+// seja iniciado
 const minDist = 5;
+
+// Animações
 const animation = {
 	home: null,
 	perspective: null
 };
+
+// Transforma uma função linear numa função 'suave' (variação senóide)
 const smooth = x => (1 - Math.cos(Math.PI*x))*0.5;
 
-// Home animation (resets view to '2d')
+// Animação home
 const animateHome = () => {
 	const o0 = view3d.getOrientation();
 	const o1 = Math.round(o0/(Math.PI*0.5))*Math.PI*0.5;
@@ -41,7 +52,7 @@ const finishHomeAnimation = () => {
 	return home.finish();
 };
 
-// Perspective animation
+// Animation de perspectiva
 const animatePerspective = p1 => {
 	const p0 = view3d.getPerspective();
 	animation.perspective = animate(b => {
@@ -61,7 +72,7 @@ const finishPerspectiveAnimation = () => {
 	return perspective.finish();
 };
 
-// Key bindings
+// Atalhos de teclado do editor
 cmdkey.bind({key: 'home'}, () => {
 	if (finishHomeAnimation()) {
 		finishPerspectiveAnimation();
@@ -78,11 +89,13 @@ cmdkey.bind({key: 'p'}, () => {
 	animatePerspective(1 - view3d.getPerspective());
 });
 
+// Eventos de mouse
 const bindMouseControls = () => {
 
 	const canvas = $(view3d.getCanvas());
 	let click = null;
 
+	// Calcula a distância entre dois pontos a e b
 	const calcDist = (ax, ay, bx, by) => {
 		const dx = bx - ax;
 		const dy = by - ay;
@@ -92,8 +105,12 @@ const bindMouseControls = () => {
 	canvas.bind('mousedown', e => {
 		e.preventDefault();
 		if (e.button !== 0) return;
+		
+		// Coordenada do clique no canvas
 		const x = e.offsetX;
 		const y = e.offsetY;
+
+		// Informações do início do clique
 		click = {
 			x, y,
 			moved: false,
@@ -110,30 +127,46 @@ const bindMouseControls = () => {
 	});
 
 	canvas.bind('mousemove', e => {
-		if (click === null) return;
+
+		if (click === null) {
+			return;
+		}
+
+		// Ignora se o botão esquerdo não estiver pressionado
 		if ((e.buttons & 1) === 0) {
 			click = null;
 			return;
 		}
+
+		// Coordenada do clique
 		const x = e.offsetX;
 		const y = e.offsetY;
+
 		let startedNow = false;
 		if (click.moved === false) {
 			const x0 = click.x;
 			const y0 = click.y;
-			if (calcDist(x0, y0, x, y) < minDist) return;
+			if (calcDist(x0, y0, x, y) < minDist) {
+				return;
+			}
 			click.moved = true;
 			startedNow = true;
 		}
 		if (startedNow) {
 			stopHomeAnimation();
 		}
+
 		if (click.shiftKey) {
+
+			// Deslocamento do modelo
 			const {shift0, shift1} = click;
 			const shift2 = view3d.getShiftAt(x, y);
 			view3d.setShift(shift0 + shift2 - shift1);
 			view3d.render();
+
 		} else if (click.altKey) {
+			
+			// Rotação da orientação
 			
 			const {orientation0, orientation1} = click;
 			const orientation2 = view3d.getOrientationAt(x, y);
@@ -142,10 +175,10 @@ const bindMouseControls = () => {
 			const a = ang;
 			const b = Math.round(ang/step)*step;
 
-			// How near the angle is to a right angle (0 to 1)
+			// O quão perto o ângulo está de um ângulo reto (0 a 1)
 			const near = 1 - Math.abs(b - a)/step*2;
 
-			// Free range
+			// Intervalo livre entre os ângulos retos
 			const cut = 0.8;
 
 			if (near >= cut) {
@@ -158,6 +191,8 @@ const bindMouseControls = () => {
 			view3d.render();
 
 		} else {
+
+			// Rotaciona o modelo
 			const {rotation0, rotation1} = click;
 			const rotation2 = view3d.getRotationAt(x, y);
 			view3d.setRotation(rotation0 + rotation2 - rotation1);
@@ -165,6 +200,7 @@ const bindMouseControls = () => {
 		}
 	});
 
+	// Aproxima/Afasta o modelo numa escala exponencial (quanto mais longe mais rapido se afasta)
 	canvas[0].addEventListener('wheel', e => {
 		if (forms.length()) return;
 		const delta = e.deltaY/Math.abs(e.deltaY);
@@ -177,3 +213,6 @@ const bindMouseControls = () => {
 };
 
 $(document).ready(bindMouseControls);
+
+// End of File
+// ========================<-------------------------------------------->======================== //

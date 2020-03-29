@@ -1,3 +1,9 @@
+// ========================<-------------------------------------------->======================== //
+// Controls the 3D view of the editor
+
+// ========================<-------------------------------------------->======================== //
+// Módulos acessados
+
 import Transform from './transform.js';
 
 // ========================<-------------------------------------------->======================== //
@@ -98,12 +104,19 @@ const cylinders = [];
 // ========================<-------------------------------------------->======================== //
 // Model mapping
 
+// Total length of the model
 let totalLength = null;
+
+// Radius of the model
 let modelRadius = null;
+
+// Scaled applied to the model
 let modelScale = null;
 
+// Mapps a key to each cylinder
 let keyToCylinder = {};
 
+// Reset cylinder positions and scales acoording to the radius of the entire model
 const mapCylinders = () => {
 
 	// Finds the total length of the cylinders
@@ -335,6 +348,7 @@ class Cylinder {
 // ========================<-------------------------------------------->======================== //
 // 3D internal methods
 
+// Recalcula as informações da câmera utilizadas na renderização
 const updateCamera = () => {
 
 	const {
@@ -403,6 +417,7 @@ const updateCamera = () => {
 	cameraUpdated = true;
 };
 
+// Renderiza os cilindros coloridos sem iluminação
 const renderCylinderColors = () => {
 	const prog = programs.colorCylinder;
 	glPick.useProgram(prog.ref);
@@ -418,6 +433,7 @@ const renderCylinderColors = () => {
 	});
 };
 
+// Renderiza os cilindros
 const renderCylinders = () => {
 	const prog = programs.solidCylinder;
 	gl.useProgram(prog.ref);
@@ -434,14 +450,19 @@ const renderCylinders = () => {
 	});
 };
 
-const getAxisValue = (dir_x, dir_y, x, y) => {
-	if (dir_x === 0 && dir_y === 0) return null;
-	const mul = sy/Math.sqrt(dir_x*dir_x + dir_y*dir_y);
-	dir_x *= mul;
-	dir_y *= mul;
+// Busca o ponto mais próximo entre o ponto [x,y] e a linha tangente ao vetor vec
+// Retorna um valor que multiplicado pelo vetor vec resulta neste ponto mais próximo, ou seja,
+// retorna o valor de [x,y] ao longo do vetor vec.
+const getAxisValue = (vec_x, vec_y, x, y) => {
+	if (vec_x === 0 && vec_y === 0) {
+		return null;
+	}
+	const mul = sy/Math.sqrt(vec_x*vec_x + vec_y*vec_y);
+	vec_x *= mul;
+	vec_y *= mul;
 	let dx = x - cx;
 	let dy = cy - y;
-	return valInLine(dir_x, dir_y, dx, dy);
+	return valInLine(vec_x, vec_y, dx, dy);
 };
 
 // ========================<-------------------------------------------->======================== //
@@ -449,6 +470,7 @@ const getAxisValue = (dir_x, dir_y, x, y) => {
 
 export const getCanvas = () => canvas;
 
+// Atualiza as dimensões do canvas
 export const resize = (width, height) => {
 	sx = width;
 	sy = height;
@@ -460,6 +482,7 @@ export const resize = (width, height) => {
 	cameraUpdated = false;
 };
 
+// Renderiza o modelo
 export const render = () => {
 	if (!cylinderMappingUpdated) mapCylinders();
 	if (!cameraUpdated) updateCamera();
@@ -467,7 +490,7 @@ export const render = () => {
 	renderCylinders();
 };
 
-// key: Something to identify the cylinder later
+// key: Identificação do cilindro
 export const addCylinder = (key, innerRadius, outerRadius, length) => {
 	if (key in keyToCylinder) {
 		throw 'Cylinder key colision';
@@ -479,6 +502,7 @@ export const addCylinder = (key, innerRadius, outerRadius, length) => {
 	return cylinder;
 };
 
+// Remove um cilindro
 export const removeCylinder = (key) => {
 	const cylinder = keyToCylinder[key];
 	if (cylinder === undefined) {
@@ -490,6 +514,8 @@ export const removeCylinder = (key) => {
 	cylinderMappingUpdated = false;
 };
 
+// Atualiza um cilindro
+// Campos nulos não serão alterados
 export const updateCylinder = (key, innerRadius, outerRadius, length) => {
 	const cylinder = keyToCylinder[key];
 	if (cylinder === undefined) {
@@ -507,12 +533,23 @@ export const updateCylinder = (key, innerRadius, outerRadius, length) => {
 	cylinderMappingUpdated = false;
 };
 
+// Define o valor de destaque de um cilindro
+export const highlightCylinder = (key, value) => {
+	const cylinder = keyToCylinder[key];
+	if (cylinder === undefined) {
+		throw 'Cylinder key not found';
+	}
+	cylinder.highlighted = Math.min(1, Math.max(0, value));
+};
+
+// Exclui todos os cilindros
 export const clearCylinders = () => {
 	cylinders.length = 0;
 	cylinderMappingUpdated = false;
 	keyToCylinder = {};
 };
 
+// Retorna a identificação do elemento que aparecem no canvas nas coordenadas x e y
 export const elementAt = (x, y) => {
 	const dx = (x - cx + 0.5)*2;
 	const dy = (cy - y - 0.5)*2;
@@ -533,6 +570,7 @@ export const elementAt = (x, y) => {
 	return cylinders[index].key;
 };
 
+// Retorna o valor de deslocamento do modelo nas coordenadas x e y do canvas
 export const getShiftAt = (x, y) => {
 	let dir_x = camera.world[2];
 	let dir_y = camera.world[6];
@@ -540,6 +578,7 @@ export const getShiftAt = (x, y) => {
 	return res === null? null: res*(Math.tan(camera.angle)*camera.distance*2);
 };
 
+// Retorna o valor de rotação do modelo nas coordenadas x e y do canvas
 export const getRotationAt = (x, y) => {
 	let dir_x = camera.world[4];
 	let dir_y = - camera.world[0];
@@ -547,6 +586,7 @@ export const getRotationAt = (x, y) => {
 	return res === null? null: res*TAU;
 };
 
+// Retorna o valor de orientação da câmera nas coordenadas x e y do canvas
 export const getOrientationAt = (x, y) => {
 	let dx = x - cx;
 	let dy = cy - y;
@@ -558,34 +598,51 @@ export const getOrientationAt = (x, y) => {
 	return res;
 };
 
+// Retorna o valor atual de deslocamento do modelo
 export const getShift = () => camera.shift;
+
+// Retorna o valor atual de rotação do modelo
 export const getRotation = () => camera.rotation;
+
+// Retorna o valor atual da orientação da câmera
 export const getOrientation = () => camera.orientation;
+
+// Retorna a distância atual da câmera
 export const getDistance = () => camera.distance;
+
+// Retorna o nível atual de perspectiva da câmera
 export const getPerspective = () => camera.perspectiveLevel;
+
+// Retorna a distância inicial da câmera
 export const getInitialDistance = () => initialDistance;
 
+// Altera o valor de deslocamento do modelo
 export const setShift = shift => {
 	camera.shift = shift;
 	cameraUpdated = false;
 };
+// Altera o valor de rotação do modelo
 export const setRotation = rotation => {
 	camera.rotation = angularCut(rotation);
 	cameraUpdated = false;
 };
+// Altera o valor da orientação da câmera
 export const setOrientation = orientation => {
 	camera.orientation = angularCut(orientation);
 	cameraUpdated = false;
 };
+// Altera a distância da câmera
 export const setDistance = distance => {
 	camera.distance = distance;
 	cameraUpdated = false;
 };
+// Altera o nível de perspectiva da câmera
 export const setPerspective = val => {
 	camera.perspectiveLevel = val;
 	cameraUpdated = false;
 };
 
+// Calcula a escala que transforma uma medida em pixels para metros
 export const getScale = () => {
 	const height = Math.tan(camera.angle)*camera.distance*2;
 	return modelScale*sy/height;

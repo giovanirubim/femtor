@@ -1,3 +1,9 @@
+// ========================<-------------------------------------------->======================== //
+// Responsável pelos eventos e elementos da barra lateral
+
+// ========================<-------------------------------------------->======================== //
+// Módulos acessados
+
 import * as project from './project.js';
 import * as shell from './shell.js';
 import * as view3d from './view3d.js';
@@ -28,11 +34,17 @@ const downloadTextFile = (fileName, content) => {
 	document.body.removeChild(element);
 };
 
-// Exporta o projeto utilizando o formato JSON
+// Gera uma string correspondente a um id para ser utilizada como id no elemento dom correspondente
+const getIdAttr = id => 'pid' + id;
+
+// Extrai o id numérico da string utilizada como id de um elemento dom
+const getIdFrom = attr => parseInt(attr.substr(3));
+
 const bindExportJSON = () => {
+	// Exporta o projeto utilizando o formato JSON
 	$('#exportJson').bind('click', () => {
 		const json = shell.generateJson();
-		downloadTextFile('Project.json', json);
+		downloadTextFile(shell.projectName() + '.json', json);
 	});
 };
 
@@ -48,11 +60,15 @@ const bindLoadFile = () => {
 		reader.onload = () => {
 			const {name} = file;
 			const {result} = reader;
-			const ext = name.substr(name.lastIndexOf('.') + 1).toLowerCase();
+			const index = name.lastIndexOf('.');
+			const ext = name.substr(index + 1).toLowerCase();
 			if (ext === 'ri') {
 				shell.loadRI(result);
-			} else {
+				shell.projectName(name.substr(0, index));
+			} else if (ext === 'json') {
 				shell.loadJSON(result);
+			} else {
+				throw 'Invalid file extension';
 			}
 			shell.storeLocal();
 		};
@@ -67,23 +83,31 @@ const bindLoadFile = () => {
 };
 
 const bindButtons = () => {
+
+	// Evento de remoção de eixos
 	leftbar.on('click', '.remove-axis', function(){
 		const element = $(this).closest('.item');
-		const id = element.attr('id').substr(3); // Ignora o prefixo 'pid'
+		const id = getIdFrom(element.attr('id'));
 		remove(id);
 		shell.removeAxis(id);
 	});
+	
+	// Evento de adição de eixos
 	$('#add_axis').bind('click', () => {
 		views.newAxis();
 	});
+
+	// Evento de edição de eixos
 	leftbar.on('click', '.edit-axis', function(){
 		const item = $(this).closest('.item');
-		const id = item.attr('id').substr(3);
+		const id = getIdFrom(item.attr('id'));
 		const {obj} = project.find(id);
 		views.editAxis(obj);
 	});
+
 };
 
+// Adiciona os eventos de abrir e fechar um container da barra lateral
 const bindContainers = () => {
 	$('#leftbar .open-close .button').bind('click', function(){
 		const container = $(this).closest('.container');
@@ -91,6 +115,7 @@ const bindContainers = () => {
 	});
 };
 
+// Função que deve ser chamada apenas uma vez quando a página já está carregada
 export const init = () => {
 	leftbar = $('#leftbar');
 	bindContainers();
@@ -99,6 +124,7 @@ export const init = () => {
 	bindButtons();
 };
 
+// Insere um objeto 'obj' do tipo 'type' na barra lateral
 export const add = (type, obj) => {
 	if (type === 'axis') {
 		const template = $('.axis-item.template');
@@ -107,7 +133,7 @@ export const add = (type, obj) => {
 		item.removeClass('template');
 		parent.append(item);
 		item.find('.title').html($.txt(obj.name));
-		item.attr('id', 'pid' + obj.id);
+		item.attr('id', getIdAttr(obj.id));
 	}
 	if (type === 'axis_instance') {
 		const template = $('.axis-instance-item.template');
@@ -123,16 +149,20 @@ export const add = (type, obj) => {
 	}
 };
 
+// Remove um item da barra lateral
+// O argumento pode ser o objeto correspondente ou seu id
 export const remove = arg => {
 	const id = arg instanceof Object? arg.id: arg;
-	const item = $('#pid'+id);
+	const item = $('#'+getIdAttr(id));
 	item.remove();
 };
 
+// Atualiza o título textual de um item na barra lateral a partir do id do objeto correspondente
 export const updateTitle = (id, title) => {
-	$('#pid'+id).find('.title').html($.txt(title));
+	$('#'+getIdAttr(id)).find('.title').html($.txt(title));
 };
 
+// Remove todos os itens da barra lateral
 export const clear = () => {
 	$('.item').not('.template').remove();
 };

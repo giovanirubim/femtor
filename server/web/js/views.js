@@ -1,6 +1,12 @@
+// ========================<-------------------------------------------->======================== //
+// Módulos acessados
+
 import * as forms from './forms.js';
 import * as shell from './shell.js';
 
+// ========================<-------------------------------------------->======================== //
+
+// Formulário para criar/editar eixo
 export const axisForm = (title, onsubmit) => {
 	const form = forms.create().title(title);
 	form.addInput({title: 'Nome do eixo', type: 'text', name: 'name', col: 2});
@@ -28,6 +34,7 @@ export const axisForm = (title, onsubmit) => {
 	return form;
 };
 
+// Formulário de adição de eixo
 export const newAxis = () => {
 	axisForm('Novo eixo', obj => {
 		shell.addAxis(obj);
@@ -35,6 +42,7 @@ export const newAxis = () => {
 	});
 };
 
+// Formulário de edição de eixo
 export const editAxis = (axis) => {
 	const {id} = axis;
 	const form = axisForm('Editar eixo', obj => {
@@ -48,3 +56,6 @@ export const editAxis = (axis) => {
 		input.val(axis[name]);
 	});
 };
+
+// End of File
+// ========================<-------------------------------------------->======================== //

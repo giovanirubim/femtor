@@ -1,7 +1,18 @@
+// ========================<-------------------------------------------->======================== //
+// Núcleo do editor (shell)
+// Todas as alterações realizadas no projeto devem ser executadas por este módulo
+// Este módulo fará as alterações necessárias na base de dados no módulo project e as alterações
+// necessárias na visualização do editor e na barra lateral através dos módulos view3d e leftbar
+
+// ========================<-------------------------------------------->======================== //
+// Módulos acessados
+
 import * as project from './project.js';
 import * as leftbar from './leftbar.js';
 import * as view3d from './view3d.js';
 import * as ri from './ri-format.js';
+
+// ========================<-------------------------------------------->======================== //
 
 // Trata alterações que modificam visualmente o projeto
 // Aguarda um determinado tempo e renderiza o modelo 3d
@@ -159,6 +170,7 @@ export const loadRI = (src, config) => {
 export const loadJSON = json => {
 	clear();
 	const database = JSON.parse(json);
+	projectName(database.name);
 	project.dependencyOrder.forEach(type => {
 		const add = addMap[type];
 		database[type].forEach(add);
@@ -167,4 +179,19 @@ export const loadJSON = json => {
 	return true;
 };
 
+// Retorna uma string contendo um JSON com os dados do projeto
 export const generateJson = () => JSON.stringify(project.database);
+
+// Retorna ou Atribui o nome do projeto
+export const projectName = arg => {
+	if (arg === undefined) {
+		return project.database.name;
+	}
+	if (arg != null) {
+		$('head title').html($.txt('ROTMef - ' + arg));
+		project.database.name = arg;
+	}
+};
+
+// End of File
+// ========================<-------------------------------------------->======================== //

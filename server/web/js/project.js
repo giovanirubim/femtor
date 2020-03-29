@@ -1,5 +1,18 @@
+// ========================<-------------------------------------------->======================== //
+// Este módulo armazena os objetos contidos no projeto.
+// Este módulo não deve acessar outros módulos, apenas ser utilizado como uma base de dados onde
+// podem ser realizadas consultas e inserções
+
+// ========================<-------------------------------------------->======================== //
+// Constantes
+
+const DEFAULT_NAME = 'Novo Projeto';
+
+// ========================<-------------------------------------------->======================== //
 // Estrutura da base de dados do modelo
+
 export const database = {
+	name: DEFAULT_NAME,
 	axis: [],
 	disk: [],
 	mg: [],
@@ -11,6 +24,8 @@ export const database = {
 	me_instance: [],
 	last_id: 0
 };
+
+// ========================<-------------------------------------------->======================== //
 
 // Mapa de id => objeto
 let idMap = {};
@@ -40,6 +55,8 @@ const insert = (obj, type) => {
 // ========================<-------------------------------------------->======================== //
 // Classes dos elementos do projeto
 
+// Classe de eixo
+// Contém as propriedades físicas de um eixo
 class Axis {
 	constructor() {
 		this.id = null;
@@ -53,6 +70,9 @@ class Axis {
 	}
 }
 
+// Classe de instância de eixo
+// Representa o aparecimento de um eixo (descrito na classe Axis) no modelo com determinado
+// comprimento
 class AxisInstance {
 	constructor() {
 		this.id = null;
@@ -64,11 +84,13 @@ class AxisInstance {
 // ========================<-------------------------------------------->======================== //
 // Métodos públicos para a manipulação do projeto
 
+// Mapeia o tipo do objeto com a classe correspondente
 const typeToClass = {
 	'axis': Axis,
 	'axis_instance': AxisInstance,
 };
 
+// Ordem de dependência dos tipos, do menos dependente ao mais dependente
 export const dependencyOrder = [
 	'axis',
 	'axis_instance'
@@ -103,6 +125,8 @@ export const remove = arg => {
 	delete typeMap[id];
 };
 
+// Retorna um array de todas as ocorrências do tipo 'type' onde o atributo 'attr' tem o valor
+// 'value'
 export const listByAttr = (type, attr, value) => {
 	const array = database[type];
 	if (!array) {
@@ -117,6 +141,8 @@ export const listByAttr = (type, attr, value) => {
 	return result;
 };
 
+// Adiciona um objeto do tipo 'type' com os dados no objeto 'data'
+// Retorna uma instância da classe correspondente ao tipo
 export const add = (type, data) => {
 	const constructor = typeToClass[type];
 	if (!constructor) {
@@ -133,9 +159,14 @@ export const add = (type, data) => {
 	return obj;
 };
 
+// Esvazia o projeto
 export const clear = () => {
 	dependencyOrder.forEach(type => database[type].length = 0);
+	database.name = DEFAULT_NAME;
 	database.last_id = 0;
 	idMap = {};
 	typeMap = {};
 };
+
+// End of File
+// ========================<-------------------------------------------->======================== //
