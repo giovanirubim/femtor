@@ -13,18 +13,14 @@ export const axisForm = (title, onsubmit) => {
 	form.addInput({title: 'Módulo E (MPa)', type: 'text', name: 'mod_e', col: 2});
 	form.addInput({title: 'Módulo G (MPa)', type: 'text', name: 'mod_g', col: 2});
 	form.addButton({label: 'Enviar', col: 1, bg: 'submit', click: (button, form) => {
-		const obj = {};
-		form.find('[name]').each(function(){
-			const input = $(this);
-			const name = input.attr('name');
-			let val = input.val();
+		const data = form.data();
+		for (let name in data) {
 			if (name !== 'name' && name !== 'desc') {
-				val = parseFloat(val);
+				data[name] = parseFloat(data[name]);
 			}
-			obj[name] = val;
-		});
+		}
 		form.close();
-		onsubmit && onsubmit(obj);
+		onsubmit && onsubmit(data);
 	}});
 	form.addButton({label: 'Cancelar', col: 1, click: (button, form) => {
 		form.close();
