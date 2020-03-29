@@ -31,24 +31,24 @@
 	margin-bottom: var(--container-spacing);
 }
 
-#leftbar .container .head {
+#leftbar .container > .head {
 	height: var(--item-sy);
 	overflow: hidden;
 }
 
 #leftbar .option .title,
-#leftbar .container .head .title {
+#leftbar .container > .head .title {
 	font-size: var(--fsize-2);
 	padding-top: calc(var(--item-padding-top));
 	margin-left: var(--item-padding-left);
 }
 
-#leftbar .container .head .title {
+#leftbar .container > .head .title {
 	display: inline-block;
 	cursor: default;
 }
 
-#leftbar .container .head .title,
+#leftbar .container > .head .title,
 #leftbar .button {
 	vertical-align: middle;
 	display: inline-block;
@@ -59,12 +59,12 @@
 	cursor: pointer;
 }
 
-#leftbar .container .head .button.add {
+#leftbar .container > .head .button.add {
 	margin-top: calc(var(--w)*4);
 	margin-left: calc(var(--w)*4);
 }
 
-#leftbar .container .head .open-close {
+#leftbar .container > .head .open-close {
 	float: right;
 	margin-top: var(--open-close-margin);
 	margin-right: var(--open-close-margin);

@@ -34,6 +34,7 @@ export const addAxisInstance = data => {
 	const obj = project.add('axis_instance', data);
 	const {inner_diameter, outer_diameter} = axis;
 	view3d.addCylinder(obj.id, inner_diameter/2, outer_diameter/2, obj.length);
+	leftbar.add('axis_instance', obj);
 	handleViewChange();
 	return obj;
 };

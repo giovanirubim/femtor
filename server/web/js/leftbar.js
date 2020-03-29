@@ -2,6 +2,7 @@ import * as project from './project.js';
 import * as shell from './shell.js';
 import * as view3d from './view3d.js';
 import * as views from './views.js';
+import * as scinot from './scinot.js';
 
 // ========================<-------------------------------------------->======================== //
 // Global variables
@@ -11,10 +12,12 @@ let leftbar;
 // ========================<-------------------------------------------->======================== //
 // Public methods
 
+// Calcula a largura da barra lateral
 export const getWidth = () => {
 	return parseInt((leftbar.css('width')).replace('px',''));
 };
 
+// Gera o download de um arquivo de conteúdo textual
 const downloadTextFile = (fileName, content) => {
 	var element = document.createElement('a');
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
@@ -25,6 +28,7 @@ const downloadTextFile = (fileName, content) => {
 	document.body.removeChild(element);
 };
 
+// Exporta o projeto utilizando o formato JSON
 const bindExportJSON = () => {
 	$('#exportJson').bind('click', () => {
 		const json = shell.generateJson();
@@ -95,15 +99,27 @@ export const init = () => {
 	bindButtons();
 };
 
-export const add = (type, object) => {
+export const add = (type, obj) => {
 	if (type === 'axis') {
 		const template = $('.axis-item.template');
 		const parent = template.parent();
 		const item = template.clone();
 		item.removeClass('template');
 		parent.append(item);
-		item.find('.title').html($.txt(object.name));
-		item.attr('id', 'pid' + object.id);
+		item.find('.title').html($.txt(obj.name));
+		item.attr('id', 'pid' + obj.id);
+	}
+	if (type === 'axis_instance') {
+		const template = $('.axis-instance-item.template');
+		const parent = template.parent();
+		const item = template.clone();
+		item.removeClass('template');
+		parent.append(item);
+		const {index} = project.find(obj.id, true);
+		const axis = project.find(obj.axis_id).obj;
+		item.find('.axis-name').html($.txt(axis.name));
+		item.find('.length').html($.txt(scinot.dump(obj.length)));
+		item.find('.index').html($.txt(index + 1));
 	}
 };
 
