@@ -84,25 +84,27 @@ const bindLoadFile = () => {
 
 const bindButtons = () => {
 
-	// Evento de remoção de eixos
-	leftbar.on('click', '.remove-axis', function(){
-		const element = $(this).closest('.item');
-		const id = getIdFrom(element.attr('id'));
-		remove(id);
-		shell.removeAxis(id);
-	});
-	
 	// Evento de adição de eixos
 	$('#add_axis').bind('click', () => {
 		views.newAxis();
 	});
 
-	// Evento de edição de eixos
-	leftbar.on('click', '.edit-axis', function(){
+	// Evento de remoção
+	leftbar.on('click', '.remove', function(){
+		const element = $(this).closest('.item');
+		const id = getIdFrom(element.attr('id'));
+		shell.remove(id);
+		shell.storeLocal();
+	});
+	
+	// Evento de edição
+	leftbar.on('click', '.edit', function(){
 		const item = $(this).closest('.item');
 		const id = getIdFrom(item.attr('id'));
-		const {obj} = project.find(id);
-		views.editAxis(obj);
+		const {obj, type} = project.find(id);
+		if (type === 'axis') {
+			views.editAxis(obj);
+		}
 	});
 
 };
@@ -127,7 +129,7 @@ export const init = () => {
 // Insere um objeto 'obj' do tipo 'type' na barra lateral
 export const add = (type, obj) => {
 	if (type === 'axis') {
-		const template = $('.axis-item.template');
+		const template = $('[object-type="axis"] .item.template');
 		const parent = template.parent();
 		const item = template.clone();
 		item.removeClass('template');
@@ -136,13 +138,14 @@ export const add = (type, obj) => {
 		item.attr('id', getIdAttr(obj.id));
 	}
 	if (type === 'axis_instance') {
-		const template = $('.axis-instance-item.template');
+		const template = $('[object-type="axis-instance"] .item.template');
 		const parent = template.parent();
 		const item = template.clone();
 		item.removeClass('template');
 		parent.append(item);
 		const {index} = project.find(obj.id, true);
 		const axis = project.find(obj.axis_id).obj;
+		item.attr('id', getIdAttr(obj.id));
 		item.find('.axis-name').html($.txt(axis.name));
 		item.find('.length').html($.txt(scinot.dump(obj.length)));
 		item.find('.index').html($.txt(index + 1));
@@ -154,6 +157,9 @@ export const add = (type, obj) => {
 export const remove = arg => {
 	const id = arg instanceof Object? arg.id: arg;
 	const item = $('#'+getIdAttr(id));
+	if (!item.length) {
+		throw `Id ${id} not found in #leftbar`;
+	}
 	item.remove();
 };
 

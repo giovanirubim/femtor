@@ -29,6 +29,11 @@ const handleViewChange = () => {
 // ========================<-------------------------------------------->======================== //
 // Métodos públicos de manipulação do projeto
 
+export const getType = arg => {
+	const id = arg instanceof Object? arg.id: arg;
+	return project.find(id).type;
+};
+
 // Insere um eixo a partir dos dados contidos no objeto data
 export const addAxis = data => {
 	const obj = project.add('axis', data);
@@ -61,6 +66,7 @@ export const removeAxis = arg => {
 	if (type !== 'axis') {
 		throw 'The object found is not an axis';
 	}
+	leftbar.remove(id);
 	const instances = project.listByAttr('axis_instance', 'axis_id', id);
 	instances.forEach(removeAxisInstance);
 };
@@ -73,8 +79,9 @@ export const removeAxisInstance = arg => {
 	if (!obj) {
 		throw 'Invalid argument';
 	}
+	leftbar.remove(id);
 	project.remove(obj);
-	view3d.removeCylinder(obj.id);
+	view3d.removeCylinder(id);
 	handleViewChange();
 };
 
@@ -135,6 +142,22 @@ export const clear = () => {
 const addMap = {
 	'axis': addAxis,
 	'axis_instance': addAxisInstance
+};
+
+// Mapea o tipo com a função de remover
+const removeMap = {
+	'axis': removeAxis,
+	'axis_instance': removeAxisInstance
+};
+
+// Remove um elemento do projeto
+export const remove = arg => {
+	const id = arg instanceof Object? arg.id: arg;
+	const {type} = project.find(id);
+	if (!type) {
+		throw 'Invalid argument';
+	}
+	removeMap[type](id);
 };
 
 // Armazena localmente o projeto
