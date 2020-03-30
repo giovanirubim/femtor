@@ -87,6 +87,7 @@ const bindButtons = () => {
 	// Evento de adição de eixos
 	$('#add_axis').bind('click', () => {
 		views.newAxis();
+		shell.storeLocal();
 	});
 
 	// Evento de remoção

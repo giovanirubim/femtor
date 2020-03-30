@@ -66,6 +66,7 @@ export const removeAxis = arg => {
 	if (type !== 'axis') {
 		throw 'The object found is not an axis';
 	}
+	project.remove(id);
 	leftbar.remove(id);
 	const instances = project.listByAttr('axis_instance', 'axis_id', id);
 	instances.forEach(removeAxisInstance);
