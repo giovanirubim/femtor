@@ -99,13 +99,33 @@ const bindButtons = () => {
 	});
 	
 	// Evento de edição
+	leftbar.on('click', '.duplicate', function(){
+		const item = $(this).closest('.item');
+		const id = getIdFrom(item.attr('id'));
+		const {obj, type} = project.find(id);
+		if (type === 'axis') {
+			const newAxis = shell.addAxis({...obj, id: null});
+			views.editAxis(newAxis);
+		}
+	});
+	
+	// Evento de edição
 	leftbar.on('click', '.edit', function(){
 		const item = $(this).closest('.item');
 		const id = getIdFrom(item.attr('id'));
 		const {obj, type} = project.find(id);
 		if (type === 'axis') {
 			views.editAxis(obj);
+		} else if (type === 'axis_instance') {
+			views.editAxisInstance(obj);
 		}
+	});
+
+	// Evento de instanciação
+	leftbar.on('click', '.instanciate', function(){
+		const item = $(this).closest('.item');
+		const axis_id = getIdFrom(item.attr('id'));
+		views.newAxisInstance(axis_id);
 	});
 
 };

@@ -90,11 +90,13 @@ export const removeAxisInstance = arg => {
 export const updateAxisInstance = data => {
 	const {id, length} = data;
 	const instance = project.find(id).obj;
-	if (length !== undefined) {
-		instance.length = length;
-		view3d.updateCylinder(id, null, null, length);
+	if (length == null || length == instance.length) {
+		return false;
 	}
+	instance.length = length;
+	view3d.updateCylinder(id, null, null, length);
 	handleViewChange();
+	return true;
 };
 
 // Atualiza um eixo

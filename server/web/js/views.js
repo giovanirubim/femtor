@@ -7,7 +7,7 @@ import * as shell from './shell.js';
 // ========================<-------------------------------------------->======================== //
 
 // Formulário para criar/editar eixo
-export const axisForm = (title, onsubmit) => {
+const axisForm = (title, onsubmit) => {
 	const form = forms.create().title(title);
 	form.addInput({title: 'Nome do eixo', type: 'text', name: 'name', col: 2});
 	form.addInput({title: 'Descrição', type: 'text', name: 'desc', col: 4});
@@ -54,6 +54,44 @@ export const editAxis = (axis) => {
 		const input = $(this);
 		const name = input.attr('name');
 		input.val(axis[name]);
+	});
+};
+
+// Formulário para criar/editar instância de eixo
+const axisInstanceForm = (title, onsubmit) => {
+	const form = forms.create().title(title);
+	form.addInput({title: 'Comprimento (m)', type: 'text', name: 'length', col: 2});
+	form.addButton({label: 'Enviar', col: 1, bg: 'submit', click: (button, form) => {
+		const data = form.data();
+		data.length = parseFloat(data.length);
+		form.close();
+		onsubmit && onsubmit(data);
+	}});
+	form.addButton({label: 'Cancelar', col: 1, click: (button, form) => {
+		form.close();
+	}});
+	return form;
+};
+
+// Formulário de adição de instância de eixo
+export const newAxisInstance = (axis_id) => {
+	axisInstanceForm('Nova instância', obj => {
+		shell.addAxisInstance({...obj, axis_id});
+		shell.storeLocal();
+	});
+};
+
+// Formulário de adição de instância de eixo
+export const editAxisInstance = (axis_instance) => {
+	const form = axisInstanceForm('Nova instância', data => {
+		if (shell.updateAxisInstance({id: axis_instance.id, ...data})) {
+			shell.storeLocal();
+		}
+	});
+	form.find('[name]').each(function(){
+		const input = $(this);
+		const name = input.attr('name');
+		input.val(axis_instance[name]);
 	});
 };
 
