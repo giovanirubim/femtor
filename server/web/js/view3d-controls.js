@@ -1,9 +1,12 @@
 // ========================<-------------------------------------------->======================== //
 // Módulos acessados
 
+import * as shell from './shell.js';
 import * as cmdkey from './cmdkey.js';
 import * as view3d from './view3d.js';
 import * as forms from './forms.js';
+import * as views from './views.js';
+import * as selection from './selection.js';
 import animate from './animate.js';
 
 // ========================<-------------------------------------------->======================== //
@@ -71,23 +74,6 @@ const finishPerspectiveAnimation = () => {
 	if (!perspective || !perspective.running) return false;
 	return perspective.finish();
 };
-
-// Atalhos de teclado do editor
-cmdkey.bind({key: 'home'}, () => {
-	if (finishHomeAnimation()) {
-		finishPerspectiveAnimation();
-		return;
-	}
-	animateHome();
-	stopPerspectiveAnimation();
-	animatePerspective(0);
-});
-cmdkey.bind({key: 'p'}, () => {
-	if (finishPerspectiveAnimation()) {
-		return;
-	}
-	animatePerspective(1 - view3d.getPerspective());
-});
 
 // Eventos de mouse
 const bindMouseControls = () => {
@@ -200,6 +186,26 @@ const bindMouseControls = () => {
 		}
 	});
 
+	canvas.bind('mouseup', e => {
+		if (!click || click.moved) {
+			return;
+		}
+		const x = e.offsetX;
+		const y = e.offsetY;
+		const id = view3d.elementAt(x, y);
+		const many = e.ctrlKey || e.shiftKey;
+		if (many) {
+			if (id) {
+				shell.toggleSelection(id);
+			}
+		} else {
+			shell.clearSelection();
+			if (id) {
+				shell.select(id);
+			}
+		}
+	});
+
 	// Aproxima/Afasta o modelo numa escala exponencial (quanto mais longe mais rapido se afasta)
 	canvas[0].addEventListener('wheel', e => {
 		if (forms.length()) return;
@@ -211,6 +217,41 @@ const bindMouseControls = () => {
 	});
 
 };
+
+// ========================<-------------------------------------------->======================== //
+// Atalhos de teclado do editor
+
+cmdkey.bind({key: 'home'}, () => {
+	if (finishHomeAnimation()) {
+		finishPerspectiveAnimation();
+		return;
+	}
+	animateHome();
+	stopPerspectiveAnimation();
+	animatePerspective(0);
+});
+
+cmdkey.bind({key: 'p'}, () => {
+	if (finishPerspectiveAnimation()) {
+		return;
+	}
+	animatePerspective(1 - view3d.getPerspective());
+});
+
+cmdkey.bind({key: 'e'}, () => {
+	if (selection.length() === 1) {
+		views.edit(selection.first());
+	}
+});
+
+cmdkey.bind({key: 'delete'}, () => {
+	if (selection.length() === 1) {
+		shell.remove(selection.first());
+		shell.storeLocal();
+	}
+});
+
+// ========================<-------------------------------------------->======================== //
 
 $(document).ready(bindMouseControls);
 

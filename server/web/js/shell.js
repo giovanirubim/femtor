@@ -11,28 +11,15 @@ import * as project from './project.js';
 import * as leftbar from './leftbar.js';
 import * as view3d from './view3d.js';
 import * as ri from './ri-format.js';
+import * as selection from './selection.js';
 
 // ========================<-------------------------------------------->======================== //
-
-// Trata alterações que modificam visualmente o projeto
-// Aguarda um determinado tempo e renderiza o modelo 3d
-let view3d_timeout = null;
-const flush3d = () => {
-	view3d_timeout = null;
-	view3d.render();
-};
-const handleViewChange = () => {
-	if (view3d_timeout !== null) return;
-	view3d_timeout = setTimeout(flush3d, 50);
-};
 
 // ========================<-------------------------------------------->======================== //
 // Métodos públicos de manipulação do projeto
 
-export const getType = arg => {
-	const id = arg instanceof Object? arg.id: arg;
-	return project.find(id).type;
-};
+export const get = arg => project.get(arg);
+export const getType = arg => project.get(arg).type;
 
 // Insere um eixo a partir dos dados contidos no objeto data
 export const addAxis = data => {
@@ -51,21 +38,13 @@ export const addAxisInstance = data => {
 	const {inner_diameter, outer_diameter} = axis;
 	view3d.addCylinder(obj.id, inner_diameter/2, outer_diameter/2, obj.length);
 	leftbar.add('axis_instance', obj);
-	handleViewChange();
+	view3d.handleChange();
 	return obj;
 };
 
 // Remove um eixo
 // O argumento pode ser o id, o próprio objeto, ou um objeto de mesmo id
-export const removeAxis = arg => {
-	const id = arg instanceof Object? arg.id: arg;
-	const {obj, type} = project.find(id);
-	if (!obj) {
-		throw 'Invalid argument';
-	}
-	if (type !== 'axis') {
-		throw 'The object found is not an axis';
-	}
+const removeAxis = ({id}) => {
 	project.remove(id);
 	leftbar.remove(id);
 	const instances = project.listByAttr('axis_instance', 'axis_id', id);
@@ -74,16 +53,13 @@ export const removeAxis = arg => {
 
 // Remove uma instância de eixo
 // O argumento pode ser o id, o próprio objeto, ou um objeto de mesmo id
-export const removeAxisInstance = arg => {
-	const id = arg instanceof Object? arg.id: arg;
-	const {obj} = project.find(id);
-	if (!obj) {
-		throw 'Invalid argument';
-	}
+export const removeAxisInstance = (axis_instance) => {
+	const {id} = axis_instance;
+	selection.remove(axis_instance, 'axis_instance');
 	leftbar.remove(id);
-	project.remove(obj);
+	project.remove(id);
 	view3d.removeCylinder(id);
-	handleViewChange();
+	view3d.handleChange();
 };
 
 // Altera uma instância de eixo
@@ -95,7 +71,7 @@ export const updateAxisInstance = data => {
 	}
 	instance.length = length;
 	view3d.updateCylinder(id, null, null, length);
-	handleViewChange();
+	view3d.handleChange();
 	return true;
 };
 
@@ -118,16 +94,28 @@ export const updateAxis = data => {
 	}
 	const r0 = axis.inner_diameter/2;
 	const r1 = axis.outer_diameter/2;
+	let instances = null;
 	if (changed['inner_diameter'] || changed['outer_diameter']) {
-		const instances = project.listByAttr('axis_instance', 'axis_id', id);
+		if (!instances) {
+			instances = project.listByAttr('axis_instance', 'axis_id', id);
+		}
 		instances.forEach(instance => {
 			const {id} = instance;
 			view3d.updateCylinder(id, r0, r1, null);
 		});
-		handleViewChange();
+		view3d.handleChange();
 	}
 	if (changed['name']) {
-		leftbar.updateTitle(axis.id, axis.name);
+		if (!instances) {
+			instances = project.listByAttr('axis_instance', 'axis_id', id);
+		}
+		instances.forEach(instance => {
+			const {id} = instance;
+			leftbar.updateText(id, {'axis-name': axis.name});
+		});
+	}
+	if (changed['name']) {
+		leftbar.updateText(axis.id, {'title': axis.name});
 		// TODO: Alterar rótulos das instâncias também
 	}
 	return true;
@@ -138,7 +126,7 @@ export const clear = () => {
 	leftbar.clear();
 	project.clear();
 	view3d.clearCylinders();
-	handleViewChange();
+	view3d.handleChange();
 };
 
 // Mapea o tipo com a função de add
@@ -155,12 +143,8 @@ const removeMap = {
 
 // Remove um elemento do projeto
 export const remove = arg => {
-	const id = arg instanceof Object? arg.id: arg;
-	const {type} = project.find(id);
-	if (!type) {
-		throw 'Invalid argument';
-	}
-	removeMap[type](id);
+	const {obj, type} = project.get(arg);
+	removeMap[type](obj);
 };
 
 // Armazena localmente o projeto
@@ -201,7 +185,7 @@ export const loadJSON = json => {
 		const add = addMap[type];
 		database[type].forEach(add);
 	});
-	handleViewChange();
+	view3d.handleChange();
 	return true;
 };
 
@@ -218,6 +202,43 @@ export const projectName = arg => {
 		project.database.name = arg;
 	}
 };
+
+// ========================<-------------------------------------------->======================== //
+
+export const select = arg => {
+	const id = arg instanceof Object? arg.id: arg;
+	const {obj, type} = project.find(id);
+	if (!obj) throw 'Invalid argument';
+	if (selection.add(obj, type)) return true;
+	return false;
+};
+
+export const unselect = arg => {
+	const id = arg instanceof Object? arg.id: arg;
+	const {obj, type} = project.find(id);
+	if (!obj) throw 'Invalid argument';
+	if (selection.remove(obj, type)) return true;
+	return false;
+};
+
+export const toggleSelection = arg => {
+	const id = arg instanceof Object? arg.id: arg;
+	const {obj, type} = project.find(id);
+	if (!obj) throw 'Invalid argument';
+	selection.toggle(obj, type);
+};
+
+export const clearSelection = () => selection.clear();
+
+selection.onselect('axis_instance', instance => {
+	view3d.highlightCylinder(instance.id);
+	view3d.handleChange();
+});
+
+selection.onunselect('axis_instance', instance => {
+	view3d.highlightCylinder(instance.id, false);
+	view3d.handleChange();
+});
 
 // End of File
 // ========================<-------------------------------------------->======================== //

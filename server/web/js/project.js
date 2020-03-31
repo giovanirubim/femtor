@@ -110,13 +110,23 @@ export const find = (id, includeIndex) => {
 	return {obj, type, index};
 };
 
-// Remove um elemento da base de dados
-export const remove = arg => {
-	const obj = arg instanceof Object? arg: idMap[arg];
+// Retorna o objeto e o tipo aceitando como parâmetro tanto o objeto como seu id ou um objeto de
+// mesmo id
+export const get = arg => {
+	const id = arg instanceof Object? arg.id: arg;
+	const obj = idMap[id];
 	if (!obj) {
 		throw 'Invalid argument';
 	}
-	const {id} = obj;
+	return {obj, type: typeMap[id]};
+};
+
+// Remove um elemento da base de dados
+export const remove = id => {
+	const obj = idMap[id];
+	if (obj === undefined) {
+		throw `Id ${id} not found in project`;
+	}
 	const type = typeMap[id];
 	const array = database[type];
 	const index = array.indexOf(obj);

@@ -177,16 +177,27 @@ export const add = (type, obj) => {
 // O argumento pode ser o objeto correspondente ou seu id
 export const remove = arg => {
 	const id = arg instanceof Object? arg.id: arg;
-	const item = $('#'+getIdAttr(id));
+	const item = getItem(id);
 	if (!item.length) {
 		throw `Id ${id} not found in #leftbar`;
 	}
 	item.remove();
 };
 
+export const getItem = id => $('#' + getIdAttr(id));
+
 // Atualiza o título textual de um item na barra lateral a partir do id do objeto correspondente
 export const updateTitle = (id, title) => {
-	$('#'+getIdAttr(id)).find('.title').html($.txt(title));
+	getItem(id).find('.title').html($.txt(title));
+};
+
+export const updateText = (id, data) => {
+	const item = getItem(id);
+	for (let name in data) {
+		const text = $.txt(data[name]);
+		item.find('.' + name).html(text);
+	}
+	return item;
 };
 
 // Remove todos os itens da barra lateral
