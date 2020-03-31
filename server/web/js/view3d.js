@@ -44,8 +44,12 @@ const highlightColor = new Float32Array([0, .5, 1]);
 const bgColor = new Float32Array([.1, .1, .1]);
 const colors = {
 	solidCylinder: {
-		cylinder_color: new Float32Array([.866, .866, .866]),
-		stripe_color: new Float32Array([.6, .6, .6]),
+		cylinder: new Float32Array([.8, .8, .8]),
+		stripe: new Float32Array([.6, .6, .6]),
+	},
+	hilightedSolidCylinder: {
+		cylinder: new Float32Array([.4, .7, 1]),
+		stripe: new Float32Array([.3, .5, .7]),
 	}
 };
 
@@ -100,6 +104,15 @@ const geometries = {
 };
 
 const cylinders = [];
+
+// Agendamento de renderização
+let render_timeout = null;
+const flush3d = () => {
+	if (render_timeout !== null) {
+		render_timeout = null;
+		render();
+	}
+};
 
 // ========================<-------------------------------------------->======================== //
 // Model mapping
@@ -319,7 +332,7 @@ class Cylinder {
 		this.rVals = new Float32Array(4);
 		this.zVals = new Float32Array(4);
 		this.pickColor = new Float32Array(3);
-		this.highlighted = 0;
+		this.highlighted = false;
 	}
 	set(z, scale, pickId) {
 		indexToColor(pickId, this.pickColor);
@@ -439,11 +452,20 @@ const renderCylinders = () => {
 	gl.useProgram(prog.ref);
 	prog.setMat4('projection', camera.projection);
 	prog.setMat4('world', camera.world);
-	prog.setVec3('cylinder_color', colors.solidCylinder.cylinder_color);
-	prog.setVec3('stripe_color', colors.solidCylinder.stripe_color);
 	const geometry = geometries.solidCylinder;
+	let prevHighlight = null;
 	cylinders.forEach(cylinder => {
-		prog.setFloat('highlighted', cylinder.highlighted);
+		const {highlighted} = cylinder;
+		if (highlighted !== prevHighlight) {
+			if (highlighted) {
+				prog.setVec3('cylinder_color', colors.hilightedSolidCylinder.cylinder);
+				prog.setVec3('stripe_color', colors.hilightedSolidCylinder.stripe);
+			} else {
+				prog.setVec3('cylinder_color', colors.solidCylinder.cylinder);
+				prog.setVec3('stripe_color', colors.solidCylinder.stripe);
+			}
+			prevHighlight = highlighted;
+		}
 		prog.setVec4('rVals', cylinder.rVals);
 		prog.setVec4('zVals', cylinder.zVals);
 		geometry.draw();
@@ -484,6 +506,10 @@ export const resize = (width, height) => {
 
 // Renderiza o modelo
 export const render = () => {
+	if (render_timeout !== null) {
+		clearTimeout(render_timeout);
+		render_timeout = null;
+	}
 	if (!cylinderMappingUpdated) mapCylinders();
 	if (!cameraUpdated) updateCamera();
 	gl.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
@@ -534,12 +560,12 @@ export const updateCylinder = (key, innerRadius, outerRadius, length) => {
 };
 
 // Define o valor de destaque de um cilindro
-export const highlightCylinder = (key, value) => {
+export const highlightCylinder = (key, value = true) => {
 	const cylinder = keyToCylinder[key];
 	if (cylinder === undefined) {
 		throw 'Cylinder key not found';
 	}
-	cylinder.highlighted = Math.min(1, Math.max(0, value));
+	cylinder.highlighted = value;
 };
 
 // Exclui todos os cilindros
@@ -646,6 +672,13 @@ export const setPerspective = val => {
 export const getScale = () => {
 	const height = Math.tan(camera.angle)*camera.distance*2;
 	return modelScale*sy/height;
+};
+
+// Agenda uma renderização nos próximos 10 milissegundos, caso haja uma renderização antes deste
+// tempo o agendamento é cancelado
+export const handleChange = () => {
+	if (render_timeout !== null) return;
+	render_timeout = setTimeout(flush3d, 10);
 };
 
 // ========================<-------------------------------------------->======================== //
@@ -794,27 +827,23 @@ shaders.fragment.solid = createShader(gl, `
 	in vec3 vNormal;
 
 	out vec4 FragColor;
-	uniform float highlighted;
 	
 	void main() {
 
-		vec3 highlightColor = ${toVec3String(highlightColor)};
 		float brightness = length(vColor);
-		vec3 midColor = mix(vec3(brightness), brightness*highlightColor, 0.75);
-		vec3 color = mix(vColor, midColor, highlighted);
 		vec3 lightCoord = vec3(50.0, 25.0, 100.0);
 		vec3 lightRay = lightCoord - vCoord;
 		vec3 lightDir = normalize(lightRay);
 		float angle = dot(lightDir, vNormal)*0.6 + 0.5;
 
-		FragColor = vec4(color*angle, 1.0);
+		FragColor = vec4(vColor*angle, 1.0);
 	}
 
 `, GL.FRAGMENT_SHADER);
 
 // Program for solid objects seen by the camera
 programs.solidCylinder = new Program(gl, shaders.vertex.solidCylinder, shaders.fragment.solid,
-	'projection', 'world', 'rVals', 'zVals', 'cylinder_color', 'stripe_color', 'highlighted');
+	'projection', 'world', 'rVals', 'zVals', 'cylinder_color', 'stripe_color');
 
 geometries.solidCylinder = buildSolidCylinderGeometry();
 
