@@ -134,7 +134,7 @@ const bindItemSelections = () => {
 
 	leftbar.on('click', '.item', function(e) {
 		const target = $(e.srcElement || e.target);
-		if (target.is('.button')) {
+		if (target.is('.button,.button *')) {
 			return;
 		}
 		const item = $(this);
