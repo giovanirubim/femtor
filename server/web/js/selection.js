@@ -54,31 +54,25 @@ export const remove = (obj, type) => {
 	return true;
 };
 
-export const has = arg => (arg instanceof Object? arg.id: arg) in idMap;
+export const hasId = id => id in idMap;
+export const has = arg => hasId(arg instanceof Object? arg.id: arg);
 export const hasType = type => types[type].length !== 0;
 export const numberOf = type => types[type].length;
 export const length = () => all.length;
 export const first = () => all[0];
 export const toggle = (obj, type) => has(obj)? remove(obj, type): add(obj, type);
 
-export const clear = type => {
-	if (!type) {
-		for (let type in types) {
-			clear(type);
-		}
-		return;
-	}
-	const array = types[type];
-	for (let i=array.length; i--;) {
-		remove(array[i], type);
-	}
-};
-
 export const each = (a, b) => {
+	let array, iteration;
 	if (b === undefined) {
-		all.forEach(a);
+		array = all;
+		iteration = a;
 	} else {
-		types[a].forEach(b);
+		array = types[a];
+		iteration = b;
+	}
+	for (let i=array.length; i--;) {
+		iteration(array[i], i);
 	}
 };
 

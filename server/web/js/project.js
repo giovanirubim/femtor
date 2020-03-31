@@ -110,6 +110,8 @@ export const find = (id, includeIndex) => {
 	return {obj, type, index};
 };
 
+export const getType = id => typeMap[id];
+
 // Retorna o objeto e o tipo aceitando como parâmetro tanto o objeto como seu id ou um objeto de
 // mesmo id
 export const get = arg => {

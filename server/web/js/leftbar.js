@@ -186,6 +186,9 @@ export const remove = arg => {
 
 export const getItem = id => $('#' + getIdAttr(id));
 
+export const select = id => getItem(id).addClass('selected');
+export const unselect = id => getItem(id).removeClass('selected');
+
 // Atualiza o título textual de um item na barra lateral a partir do id do objeto correspondente
 export const updateTitle = (id, title) => {
 	getItem(id).find('.title').html($.txt(title));

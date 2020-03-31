@@ -94,6 +94,11 @@
 	background-color: #444;
 }
 
+#leftbar .container > .content .item.selected > .content {
+	background-color: #135;
+	text-shadow: 0px 0px 2px #07f;
+}
+
 #leftbar .option {
 	border-radius: calc(var(--item-sy)*0.25);
 	height: var(--item-sy);

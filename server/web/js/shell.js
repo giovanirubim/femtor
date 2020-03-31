@@ -55,7 +55,7 @@ const removeAxis = ({id}) => {
 // O argumento pode ser o id, o próprio objeto, ou um objeto de mesmo id
 export const removeAxisInstance = (axis_instance) => {
 	const {id} = axis_instance;
-	selection.remove(axis_instance, 'axis_instance');
+	unselect(axis_instance);
 	leftbar.remove(id);
 	project.remove(id);
 	view3d.removeCylinder(id);
@@ -204,31 +204,59 @@ export const projectName = arg => {
 };
 
 // ========================<-------------------------------------------->======================== //
+// Internal version of public methods with more arguments and less overhead
+
+export const __select = (obj, type) => {
+	if (selection.add(obj, type)) {
+		leftbar.select(obj.id);
+		return true;
+	}
+	return false;
+};
+
+export const __unselect = (obj, type) => {
+	if (selection.remove(obj, type)) {
+		leftbar.unselect(obj.id);
+		return true;
+	}
+	return false;
+};
+
+// ========================<-------------------------------------------->======================== //
 
 export const select = arg => {
-	const id = arg instanceof Object? arg.id: arg;
-	const {obj, type} = project.find(id);
-	if (!obj) throw 'Invalid argument';
-	if (selection.add(obj, type)) return true;
-	return false;
+	const {obj, type} = project.get(arg);
+	if (!obj) {
+		throw 'Invalid argument';
+	}
+	return __select(obj, type);
 };
 
 export const unselect = arg => {
-	const id = arg instanceof Object? arg.id: arg;
-	const {obj, type} = project.find(id);
-	if (!obj) throw 'Invalid argument';
-	if (selection.remove(obj, type)) return true;
-	return false;
+	const {obj, type} = project.get(arg);
+	if (!obj) {
+		throw 'Invalid argument';
+	}
+	return __unselect(obj, type);
 };
 
 export const toggleSelection = arg => {
-	const id = arg instanceof Object? arg.id: arg;
-	const {obj, type} = project.find(id);
-	if (!obj) throw 'Invalid argument';
-	selection.toggle(obj, type);
+	const {obj, type} = project.get(arg);
+	if (!obj) {
+		throw 'Invalid argument';
+	}
+	if (selection.hasId(obj.id)) {
+		__unselect(obj, type);
+	} else {
+		__select(obj, type);
+	}
 };
 
-export const clearSelection = () => selection.clear();
+export const clearSelection = () => {
+	selection.each(obj => {
+		__unselect(obj, project.getType(obj.id));
+	});
+};
 
 selection.onselect('axis_instance', instance => {
 	view3d.highlightCylinder(instance.id);
