@@ -95,5 +95,20 @@ export const editAxisInstance = (axis_instance) => {
 	});
 };
 
+// Mapeia o tipo de um objeto com o método de edição correspondente
+const mapTypeEdit = {
+	axis: editAxis,
+	axis_instance: editAxisInstance,
+};
+
+// Chamada genérica para edição de objetos
+export const edit = arg => {
+	const {obj, type} = shell.get(arg);
+	const method = mapTypeEdit[type];
+	if (method) {
+		method(arg);
+	}
+};
+
 // End of File
 // ========================<-------------------------------------------->======================== //
