@@ -130,6 +130,30 @@ const bindButtons = () => {
 
 };
 
+const bindItemSelections = () => {
+
+	leftbar.on('click', '.item', function(e) {
+		const target = $(e.srcElement || e.target);
+		if (target.is('.button')) {
+			return;
+		}
+		const item = $(this);
+		const id = getIdFrom(item.attr('id'));
+		const many = e.ctrlKey || e.shiftKey;
+		if (many) {
+			if (item.is('.selected')) {
+				shell.unselect(id);
+			} else {
+				shell.select(id);
+			}
+		} else {
+			shell.clearSelection();
+			shell.select(id);
+		}
+	});
+
+};
+
 // Adiciona os eventos de abrir e fechar um container da barra lateral
 const bindContainers = () => {
 	$('#leftbar .open-close .button').bind('click', function(){
@@ -145,6 +169,7 @@ export const init = () => {
 	bindExportJSON();
 	bindLoadFile();
 	bindButtons();
+	bindItemSelections();
 };
 
 // Insere um objeto 'obj' do tipo 'type' na barra lateral

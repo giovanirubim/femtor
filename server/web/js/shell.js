@@ -44,7 +44,9 @@ export const addAxisInstance = data => {
 
 // Remove um eixo
 // O argumento pode ser o id, o próprio objeto, ou um objeto de mesmo id
-const removeAxis = ({id}) => {
+const removeAxis = (axis) => {
+	__unselect(axis, 'axis');
+	const {id} = axis;
 	project.remove(id);
 	leftbar.remove(id);
 	const instances = project.listByAttr('axis_instance', 'axis_id', id);
@@ -54,6 +56,7 @@ const removeAxis = ({id}) => {
 // Remove uma instância de eixo
 // O argumento pode ser o id, o próprio objeto, ou um objeto de mesmo id
 export const removeAxisInstance = (axis_instance) => {
+	__unselect(axis_instance, 'axis_instance');
 	const {id} = axis_instance;
 	unselect(axis_instance);
 	leftbar.remove(id);
@@ -206,7 +209,7 @@ export const projectName = arg => {
 // ========================<-------------------------------------------->======================== //
 // Internal version of public methods with more arguments and less overhead
 
-export const __select = (obj, type) => {
+const __select = (obj, type) => {
 	if (selection.add(obj, type)) {
 		leftbar.select(obj.id);
 		return true;
@@ -214,7 +217,7 @@ export const __select = (obj, type) => {
 	return false;
 };
 
-export const __unselect = (obj, type) => {
+const __unselect = (obj, type) => {
 	if (selection.remove(obj, type)) {
 		leftbar.unselect(obj.id);
 		return true;
