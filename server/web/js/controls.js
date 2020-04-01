@@ -245,10 +245,7 @@ cmdkey.bind({key: 'e'}, () => {
 });
 
 cmdkey.bind({key: 'delete'}, () => {
-	if (selection.length() === 1) {
-		shell.remove(selection.first());
-		shell.storeLocal();
-	}
+	selection.each('axis_instance', shell.remove);
 });
 
 // ========================<-------------------------------------------->======================== //

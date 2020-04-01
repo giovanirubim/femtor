@@ -59,6 +59,7 @@ const bindLoadFile = () => {
 		const reader = new FileReader();
 		reader.onload = () => {
 			const {name} = file;
+			input[0].value = '';
 			const {result} = reader;
 			const index = name.lastIndexOf('.');
 			const ext = name.substr(index + 1).toLowerCase();

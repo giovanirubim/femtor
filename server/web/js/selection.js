@@ -1,16 +1,25 @@
 // ========================<-------------------------------------------->======================== //
 // Módulo que gerencia elementos selecionados no modelo
 
+// ========================<-------------------------------------------->======================== //
+// Variáveis globais
+
+// Mapa que id's de objetos que estão selecionados
 const idMap = {};
+
+// Mapa de tratamento de eventos de seleção
+// A chave indica o tipo e o valor o handler
 const onAddHandlers = {};
+
+// Mapa de tratamento de eventos de remoção de seleção
+// A chave indica o tipo e o valor o handler
 const onRemoveHandlers = {};
 
+// Vetor com todos os elementos selecionados
 export const all = [];
+
+// Vetores dos elementos selecionados separados por tipo
 export const types = {
-	axis: [],
-	disk: [],
-	mg: [],
-	me: [],
 	axis_instance: [],
 	disk_instance: [],
 	mg_instance: [],
@@ -19,10 +28,13 @@ export const types = {
 };
 
 // ========================<-------------------------------------------->======================== //
+// Métodos auxiliares
 
+// Remove um objeto de um array
 const arrayRemove = (array, obj) => array.splice(array.indexOf(obj), 1);
 
 // ========================<-------------------------------------------->======================== //
+// Métodos públicos
 
 export const add = (obj, type) => {
 	const {id} = obj;
@@ -71,9 +83,7 @@ export const each = (a, b) => {
 		array = types[a];
 		iteration = b;
 	}
-	for (let i=array.length; i--;) {
-		iteration(array[i], i);
-	}
+	array.slice().forEach(obj => hasId(obj.id) && iteration(obj));
 };
 
 export const onselect = (type, handler) => {
@@ -84,4 +94,5 @@ export const onunselect = (type, handler) => {
 	onRemoveHandlers[type] = handler;
 };
 
+// End of File
 // ========================<-------------------------------------------->======================== //

@@ -1,14 +1,13 @@
 // ========================<-------------------------------------------->======================== //
-// Módulo inicializdor
-
-// ========================<-------------------------------------------->======================== //
 // Módulos acessados
 
 import * as view3d from './view3d.js';
 import * as leftbar from './leftbar.js';
 import * as shell from './shell.js';
-import * as views from './views.js';
-import './view3d-controls.js';
+import './controls.js';
+
+// ========================<-------------------------------------------->======================== //
+// Trata alterações nas dimensões da página
 
 // Editor size x
 let esx = null;
@@ -29,6 +28,8 @@ const handleResize = () => {
 	return true;
 };
 
+// ========================<-------------------------------------------->======================== //
+
 $(document).ready(() => {
 	
 	// Inicializa o módulo da barra lateral
@@ -47,3 +48,6 @@ $(document).ready(() => {
 	// Inicializa um nome de projeto
 	shell.projectName(shell.projectName());
 });
+
+// End of File
+// ========================<-------------------------------------------->======================== //
