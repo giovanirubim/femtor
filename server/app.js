@@ -1,7 +1,13 @@
 const fs = require('fs');
 const http = require('http');
 
-const webRoot = './web';
+const concatPaths = (a, b) => {
+	const isDash = {'/': 1, '\\': 1};
+	if (isDash[a[a.length - 1]]) a = a.substr(0, a.length - 1);
+	if (isDash[b[0]]) b = b.substr(1);
+	return `${a}/${b}`;
+};
+const webRoot = concatPaths(__dirname, 'web');
 const port = 80;
 
 const getMime = path => {
