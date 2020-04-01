@@ -159,6 +159,11 @@ const bindContainers = () => {
 	$('#leftbar .open-close .button').bind('click', function(){
 		const container = $(this).closest('.container');
 		container.toggleClass('closed');
+		if (container.hasClass('closed')) {
+			container.children('.content').finish().slideUp(250);
+		} else {
+			container.children('.content').finish().slideDown(250);
+		}
 	});
 };
 

@@ -85,7 +85,7 @@
 }
 
 #leftbar .container.closed > .content {
-	display: none;
+	/*display: none;*/
 }
 
 #leftbar .container > .content .item {
