@@ -116,10 +116,7 @@ export const updateAxis = data => {
 			const {id} = instance;
 			leftbar.updateText(id, {'axis-name': axis.name});
 		});
-	}
-	if (changed['name']) {
 		leftbar.updateText(axis.id, {'title': axis.name});
-		// TODO: Alterar rótulos das instâncias também
 	}
 	return true;
 };

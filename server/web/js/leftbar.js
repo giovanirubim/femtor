@@ -132,7 +132,7 @@ const bindButtons = () => {
 
 const bindItemSelections = () => {
 
-	leftbar.on('click', '.item', function(e) {
+	leftbar.on('click', '[object-type="axis_instance"] .item', function(e) {
 		const target = $(e.srcElement || e.target);
 		if (target.is('.button,.button *')) {
 			return;
@@ -184,7 +184,7 @@ export const add = (type, obj) => {
 		item.attr('id', getIdAttr(obj.id));
 	}
 	if (type === 'axis_instance') {
-		const template = $('[object-type="axis-instance"] .item.template');
+		const template = $('[object-type="axis_instance"] .item.template');
 		const parent = template.parent();
 		const item = template.clone();
 		item.removeClass('template');
