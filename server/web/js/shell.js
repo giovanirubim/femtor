@@ -55,14 +55,23 @@ const removeAxis = (axis) => {
 
 // Remove uma instância de eixo
 // O argumento pode ser o id, o próprio objeto, ou um objeto de mesmo id
-export const removeAxisInstance = (axis_instance) => {
-	__unselect(axis_instance, 'axis_instance');
+export const removeAxisInstance = (axis_instance, updateIndexes = true) => {
+
 	const {id} = axis_instance;
-	unselect(axis_instance);
+	const array = project.database.axis_instance;
+	const index = array.indexOf(axis_instance);
+	const {length} = array;
+
+	// Atualiza o índice das instâncias consecutivas na barra lateral
+	for (let i=index + 1; i<length; ++i) {
+		leftbar.updateText(array[i].id, {index: i});
+	}
+	
 	leftbar.remove(id);
 	project.remove(id);
 	view3d.removeCylinder(id);
 	view3d.handleChange();
+
 };
 
 // Altera uma instância de eixo
