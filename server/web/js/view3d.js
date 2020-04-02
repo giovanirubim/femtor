@@ -71,7 +71,7 @@ const camera = {
 	lightCoord: new Float32Array([0, 1, 1]),
 	
 	// mixes from (0) orthographic to (1) perspective
-	perspectiveLevel: 0,
+	perspectiveLevel: 1,
 
 	// Projection info
 	angle: 15*TO_RAD,
