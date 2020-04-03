@@ -14,8 +14,6 @@ import * as ri from './ri-format.js';
 import * as selection from './selection.js';
 
 // ========================<-------------------------------------------->======================== //
-
-// ========================<-------------------------------------------->======================== //
 // Métodos públicos de manipulação do projeto
 
 export const get = arg => project.get(arg);
@@ -38,7 +36,6 @@ export const addAxisInstance = data => {
 	const {inner_diameter, outer_diameter} = axis;
 	view3d.addCylinder(obj.id, inner_diameter/2, outer_diameter/2, obj.length);
 	leftbar.add('axis_instance', obj);
-	view3d.handleChange();
 	return obj;
 };
 
@@ -71,7 +68,6 @@ export const removeAxisInstance = (axis_instance, updateIndexes = true) => {
 	leftbar.remove(id);
 	project.remove(id);
 	view3d.removeCylinder(id);
-	view3d.handleChange();
 
 };
 
@@ -84,7 +80,6 @@ export const updateAxisInstance = data => {
 	}
 	instance.length = length;
 	view3d.updateCylinder(id, null, null, length);
-	view3d.handleChange();
 	return true;
 };
 
@@ -116,7 +111,6 @@ export const updateAxis = data => {
 			const {id} = instance;
 			view3d.updateCylinder(id, r0, r1, null);
 		});
-		view3d.handleChange();
 	}
 	if (changed['name']) {
 		if (!instances) {
@@ -136,7 +130,6 @@ export const clear = () => {
 	leftbar.clear();
 	project.clear();
 	view3d.clearCylinders();
-	view3d.handleChange();
 };
 
 // Mapea o tipo com a função de add
@@ -195,7 +188,6 @@ export const loadJSON = json => {
 		const add = addMap[type];
 		database[type].forEach(add);
 	});
-	view3d.handleChange();
 	return true;
 };
 
@@ -270,12 +262,10 @@ export const clearSelection = () => {
 
 selection.onselect('axis_instance', instance => {
 	view3d.highlightCylinder(instance.id);
-	view3d.handleChange();
 });
 
 selection.onunselect('axis_instance', instance => {
 	view3d.highlightCylinder(instance.id, false);
-	view3d.handleChange();
 });
 
 // End of File

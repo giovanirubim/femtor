@@ -6,19 +6,48 @@
 // finish: função executada ao final da animação
 // retorna um objeto contendo os métodos stop (para a animação, não chama o finish) e finish
 // (pula para o final da animação), e as flags booleanas finished e running
-const animate = (step, duration = 750, finish) => {
+
+const createInterval = step => {
+	const obj = {running: true};
+	const tic = () => {
+		if (obj.running === false) {
+			return;
+		}
+		step();
+		requestAnimationFrame(tic);
+	};
+	tic();
+	return obj;
+};
+
+const stopInterval = value => {
+	value && (value.running = false);
+};
+
+const animate = (step, a, b) => {
+	let config, finish;
+	if (b !== undefined) {
+		config = a;
+		finish = b;
+	} else if (a !== undefined) {
+		if (a instanceof Object) {
+			config = a;
+		} else {
+			finish = a;
+		}
+	}
+	const {duration = 750} = config ?? {};
 	const ini = new Date();
-	let interval = setInterval(() => {
+	let interval = null;
+	interval = createInterval(() => {
 		if (interval === null) return;
 		const t = Math.min(1, (new Date() - ini)/duration);
 		step(t);
 		if (t === 1 && interval !== null) {
-			clearInterval(null);
+			stopInterval(null);
 			result.running = false;
 			interval = null;
-			if (finish) {
-				finish();
-			}
+			finish?.();
 			result.finished = true;
 		}
 	}, 0);
@@ -27,7 +56,7 @@ const animate = (step, duration = 750, finish) => {
 			if (interval === null) {
 				return false;
 			}
-			clearInterval(interval);
+			stopInterval(interval);
 			result.running = false;
 			interval = null;
 			return true;
@@ -40,12 +69,10 @@ const animate = (step, duration = 750, finish) => {
 			if (interval === null) {
 				return false;
 			}
-			clearInterval(interval);
+			stopInterval(interval);
 			result.running = false;
 			interval = null;
-			if (finish) {
-				finish();
-			}
+			finish?.();
 			result.finished = true;
 			return true;
 		},

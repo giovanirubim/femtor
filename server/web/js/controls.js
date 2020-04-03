@@ -41,7 +41,6 @@ const animateHome = () => {
 		view3d.setRotation(r0*b + r1*a);
 		view3d.setShift(s0*b + s1*a);
 		view3d.setDistance(d0*b + d1*a);
-		view3d.render();
 	});
 };
 const stopHomeAnimation = () => {
@@ -61,7 +60,6 @@ const animatePerspective = p1 => {
 	animation.perspective = animate(b => {
 		const a = 1 - b;
 		view3d.setPerspective(a*p0 + b*p1);
-		view3d.render();
 	});
 };
 const stopPerspectiveAnimation = () => {
@@ -148,7 +146,6 @@ const bindMouseControls = () => {
 			const {shift0, shift1} = click;
 			const shift2 = view3d.getShiftAt(x, y);
 			view3d.setShift(shift0 + shift2 - shift1);
-			view3d.render();
 
 		} else if (click.altKey) {
 			
@@ -174,7 +171,6 @@ const bindMouseControls = () => {
 				view3d.setOrientation(b*val + a*(1 - val));
 			}
 
-			view3d.render();
 
 		} else {
 
@@ -182,7 +178,6 @@ const bindMouseControls = () => {
 			const {rotation0, rotation1} = click;
 			const rotation2 = view3d.getRotationAt(x, y);
 			view3d.setRotation(rotation0 + rotation2 - rotation1);
-			view3d.render();
 		}
 	});
 
@@ -213,7 +208,6 @@ const bindMouseControls = () => {
 		const d0 = view3d.getDistance();
 		const d1 = Math.exp(Math.log(d0) + delta*0.04);
 		view3d.setDistance(d1);
-		view3d.render();
 	});
 
 };

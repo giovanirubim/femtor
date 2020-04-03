@@ -24,7 +24,6 @@ const handleResize = () => {
 		esy = sy;
 	}
 	view3d.resize(sx, sy);
-	view3d.render();
 	return true;
 };
 
@@ -47,6 +46,9 @@ $(document).ready(() => {
 
 	// Inicializa um nome de projeto
 	shell.projectName(shell.projectName());
+
+	// Inicia o loop de renderização
+	view3d.start();
 });
 
 // End of File

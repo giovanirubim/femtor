@@ -28,6 +28,9 @@ const initialDistance = 50;
 const gl = canvas.getContext('webgl2', {antialias: true});
 const glPick = canvasColorPicker.getContext('webgl2', {antialias: false});
 
+// Flag que indica se a visualização 3D está atualizada na tela
+let viewUpdated = true;
+
 // 3D view width (sx) and height (sy)
 let sx = null;
 let sy = null;
@@ -105,14 +108,8 @@ const geometries = {
 
 const cylinders = [];
 
-// Agendamento de renderização
-let render_timeout = null;
-const flush3d = () => {
-	if (render_timeout !== null) {
-		render_timeout = null;
-		render();
-	}
-};
+// Agendamento da renderização
+let render_request = null;
 
 // ========================<-------------------------------------------->======================== //
 // Model mapping
@@ -487,6 +484,16 @@ const getAxisValue = (vec_x, vec_y, x, y) => {
 	return valInLine(vec_x, vec_y, dx, dy);
 };
 
+// Renderiza o modelo
+const render = () => {
+	if (viewUpdated === true) return;
+	if (!cylinderMappingUpdated) mapCylinders();
+	if (!cameraUpdated) updateCamera();
+	gl.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
+	renderCylinders();
+	viewUpdated = true;
+};
+
 // ========================<-------------------------------------------->======================== //
 // 3D public methods
 
@@ -502,18 +509,7 @@ export const resize = (width, height) => {
 	canvas.height = sy;
 	gl.viewport(0, 0, sx, sy);
 	cameraUpdated = false;
-};
-
-// Renderiza o modelo
-export const render = () => {
-	if (render_timeout !== null) {
-		clearTimeout(render_timeout);
-		render_timeout = null;
-	}
-	if (!cylinderMappingUpdated) mapCylinders();
-	if (!cameraUpdated) updateCamera();
-	gl.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-	renderCylinders();
+	viewUpdated = false;
 };
 
 // key: Identificação do cilindro
@@ -525,6 +521,7 @@ export const addCylinder = (key, innerRadius, outerRadius, length) => {
 	cylinders.push(cylinder);
 	cylinderMappingUpdated = false;
 	keyToCylinder[key] = cylinder;
+	viewUpdated = false;
 	return cylinder;
 };
 
@@ -538,6 +535,7 @@ export const removeCylinder = (key) => {
 	delete keyToCylinder[key];
 	cylinders.splice(index, 1);
 	cylinderMappingUpdated = false;
+	viewUpdated = false;
 };
 
 // Atualiza um cilindro
@@ -557,6 +555,7 @@ export const updateCylinder = (key, innerRadius, outerRadius, length) => {
 		cylinder.length = length;
 	}
 	cylinderMappingUpdated = false;
+	viewUpdated = false;
 };
 
 // Define o valor de destaque de um cilindro
@@ -566,13 +565,16 @@ export const highlightCylinder = (key, value = true) => {
 		throw 'Cylinder key not found';
 	}
 	cylinder.highlighted = value;
+	viewUpdated = false;
 };
 
 // Exclui todos os cilindros
 export const clearCylinders = () => {
+	if (cylinders.length === 0) return;
 	cylinders.length = 0;
 	cylinderMappingUpdated = false;
 	keyToCylinder = {};
+	viewUpdated = false;
 };
 
 // Retorna a identificação do elemento que aparecem no canvas nas coordenadas x e y
@@ -646,39 +648,56 @@ export const getInitialDistance = () => initialDistance;
 export const setShift = shift => {
 	camera.shift = shift;
 	cameraUpdated = false;
+	viewUpdated = false;
 };
 // Altera o valor de rotação do modelo
 export const setRotation = rotation => {
 	camera.rotation = angularCut(rotation);
 	cameraUpdated = false;
+	viewUpdated = false;
 };
 // Altera o valor da orientação da câmera
 export const setOrientation = orientation => {
 	camera.orientation = angularCut(orientation);
 	cameraUpdated = false;
+	viewUpdated = false;
 };
 // Altera a distância da câmera
 export const setDistance = distance => {
 	camera.distance = distance;
 	cameraUpdated = false;
+	viewUpdated = false;
 };
 // Altera o nível de perspectiva da câmera
 export const setPerspective = val => {
 	camera.perspectiveLevel = val;
 	cameraUpdated = false;
+	viewUpdated = false;
 };
 
 // Calcula a escala que transforma uma medida em pixels para metros
 export const getScale = () => {
 	const height = Math.tan(camera.angle)*camera.distance*2;
 	return modelScale*sy/height;
+	viewUpdated = false;
 };
 
-// Agenda uma renderização nos próximos 10 milissegundos, caso haja uma renderização antes deste
-// tempo o agendamento é cancelado
-export const handleChange = () => {
-	if (render_timeout !== null) return;
-	render_timeout = setTimeout(flush3d, 10);
+// Inicia o loop de renderização
+export const start = () => {
+	if (render_request !== null) return;
+	const frame = () => {
+		render();
+		render_request = requestAnimationFrame(frame);
+	};
+	render_request = requestAnimationFrame(frame);
+};
+
+// Para o loop de renderização
+export const stop = () => {
+	if (render_request !== null) {
+		cancelAnimationFrame(render_request);
+		render_request = null;
+	}
 };
 
 // ========================<-------------------------------------------->======================== //
