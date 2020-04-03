@@ -8,7 +8,7 @@
 	--item-sy: calc(var(--w)*24);
 	--open-close-margin: calc(var(--w)*5);
 	--container-spacing: calc(var(--w)*5);
-	--item-padding-top: calc(var(--fsize-1)*0.25);
+	--item-padding-top: calc(var(--fsize-1)*0.35);
 	--item-padding-left: calc(var(--fsize-1)*0.5);
 	--in-item-sy: calc(var(--item-sy)*0.75);
 	-khtml-user-select: none;
