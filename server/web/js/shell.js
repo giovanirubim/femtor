@@ -67,6 +67,7 @@ export const removeAxisInstance = (axis_instance, updateIndexes = true) => {
 		leftbar.updateText(array[i].id, {index: i});
 	}
 	
+	__unselect(axis_instance, 'axis_instance');
 	leftbar.remove(id);
 	project.remove(id);
 	view3d.removeCylinder(id);
