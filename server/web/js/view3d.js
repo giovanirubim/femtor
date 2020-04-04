@@ -19,6 +19,7 @@ const TO_DEG = 180/PI;
 const nSides = 60; // Number of sides in a "circle"
 const step = TAU/nSides;
 const totalRadius = 10;
+const axisLength = totalRadius*2.5;
 const defaultStripeSize = totalRadius*0.002;
 const initialDistance = 50;
 
@@ -44,15 +45,15 @@ let cameraUpdated = false;
 let cylinderMappingUpdated = false;
 
 const highlightColor = new Float32Array([0, .5, 1]);
-const bgColor = new Float32Array([.1, .1, .1]);
+const bgColor = new Float32Array([.05, .05, .05]);
 const colors = {
 	solidCylinder: {
-		cylinder: new Float32Array([.8, .8, .8]),
-		stripe: new Float32Array([.6, .6, .6]),
+		cylinder: new Float32Array([.6, .6, .6]),
+		stripe: new Float32Array([.35, .35, .35]),
 	},
 	hilightedSolidCylinder: {
 		cylinder: new Float32Array([.4, .7, 1]),
-		stripe: new Float32Array([.3, .5, .7]),
+		stripe: new Float32Array([.6, .8, 1]),
 	}
 };
 
@@ -469,6 +470,16 @@ const renderCylinders = () => {
 	});
 };
 
+const renderAxis = () => {
+	const prog = programs.line;
+	gl.useProgram(prog.ref);
+	prog.setMat4('projection', camera.projection);
+	prog.setMat4('world', camera.world);
+	geometries.xAxis.draw();
+	geometries.yAxis.draw();
+	geometries.zAxis.draw();
+};
+
 // Busca o ponto mais próximo entre o ponto [x,y] e a linha tangente ao vetor vec
 // Retorna um valor que multiplicado pelo vetor vec resulta neste ponto mais próximo, ou seja,
 // retorna o valor de [x,y] ao longo do vetor vec.
@@ -491,6 +502,7 @@ const render = () => {
 	if (!cameraUpdated) updateCamera();
 	gl.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
 	renderCylinders();
+	renderAxis();
 	viewUpdated = true;
 };
 
@@ -785,8 +797,27 @@ const buildClickCylinderGeometry = () => {
 	return new Geometry(glPick, attrArray, element, [2, 1, 1], GL.TRIANGLES);
 };
 
+const buildCenterLine = (dx, dy, dz, r, g, b) => {
+
+	const attrArray = [];
+	const element = [];
+
+	const vecLength = Math.sqrt(dx*dx + dy*dy + dz*dz);
+	const mul = axisLength*0.5/vecLength;
+	dx *= mul;
+	dy *= mul;
+	dz *= mul;
+
+	attrArray.push(-dx, -dy, -dz, r, g, b);
+	attrArray.push(+dx, +dy, +dz, r, g, b);
+	element.push(0, 1);
+
+	return new Geometry(gl, attrArray, element, [3, 3], GL.LINES);
+
+};
+
 // ========================<-------------------------------------------->======================== //
-// WebGL initialization
+// WebGL initialization (1)
 
 canvasColorPicker.width = 1;
 canvasColorPicker.height = 1;
@@ -799,6 +830,9 @@ glPick.clearColor(1, 1, 1, 1);
 glPick.viewport(0, 0, 1, 1);
 glPick.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);
 glPick.enable(GL.DEPTH_TEST);
+
+// ========================<-------------------------------------------->======================== //
+// WebGL initialization (2) - Shaders
 
 // Vertex shader for solid cylinders
 shaders.vertex.solidCylinder = createShader(gl, `
@@ -835,51 +869,6 @@ shaders.vertex.solidCylinder = createShader(gl, `
 	}
 `, GL.VERTEX_SHADER);
 
-// Fragment shader for solid geometries
-shaders.fragment.solid = createShader(gl, `
-
-	#version 300 es
-	precision highp float;
-	
-	in vec3 vCoord;
-	in vec3 vColor;
-	in vec3 vNormal;
-
-	out vec4 FragColor;
-	
-	void main() {
-
-		float brightness = length(vColor);
-		vec3 lightCoord = vec3(50.0, 25.0, 100.0);
-		vec3 lightRay = lightCoord - vCoord;
-		vec3 lightDir = normalize(lightRay);
-		float angle = dot(lightDir, vNormal)*0.6 + 0.5;
-
-		FragColor = vec4(vColor*angle, 1.0);
-	}
-
-`, GL.FRAGMENT_SHADER);
-
-// Program for solid objects seen by the camera
-programs.solidCylinder = new Program(gl, shaders.vertex.solidCylinder, shaders.fragment.solid,
-	'projection', 'world', 'rVals', 'zVals', 'cylinder_color', 'stripe_color');
-
-geometries.solidCylinder = buildSolidCylinderGeometry();
-
-shaders.fragment.color = createShader(glPick, `
-
-	#version 300 es
-	precision highp float;
-	
-	out vec4 FragColor;
-	uniform vec3 color;
-	
-	void main() {
-		FragColor = vec4(color, 1.0);
-	}
-
-`, GL.FRAGMENT_SHADER);
-
 shaders.vertex.colorCylinder = createShader(glPick, `
 
 	#version 300 es
@@ -905,10 +894,99 @@ shaders.vertex.colorCylinder = createShader(glPick, `
 
 `, GL.VERTEX_SHADER);
 
+shaders.vertex.line = createShader(gl, `
+
+	#version 300 es
+	precision highp float;
+	
+	layout (location = 0) in vec3 vCoord;
+	layout (location = 1) in vec3 vColor;
+
+	out vec3 color;
+	
+	uniform mat4 world;
+	uniform mat4 projection;
+	
+	void main() {
+		color = vColor;
+		gl_Position = projection*world*vec4(vCoord, 1.0);
+	}
+
+`, GL.VERTEX_SHADER);
+
+// Fragment shader for solid geometries
+shaders.fragment.solid = createShader(gl, `
+
+	#version 300 es
+	precision highp float;
+	
+	in vec3 vCoord;
+	in vec3 vColor;
+	in vec3 vNormal;
+
+	out vec4 FragColor;
+	
+	void main() {
+
+		float brightness = length(vColor);
+		vec3 lightCoord = vec3(50.0, 25.0, 100.0);
+		vec3 lightRay = lightCoord - vCoord;
+		vec3 lightDir = normalize(lightRay);
+		float angle = dot(lightDir, vNormal)*0.6 + 0.5;
+
+		FragColor = vec4(vColor*angle, 1.0);
+	}
+
+`, GL.FRAGMENT_SHADER);
+
+shaders.fragment.color = createShader(glPick, `
+
+	#version 300 es
+	precision highp float;
+	
+	out vec4 FragColor;
+	uniform vec3 color;
+	
+	void main() {
+		FragColor = vec4(color, 1.0);
+	}
+
+`, GL.FRAGMENT_SHADER);
+
+shaders.fragment.line = createShader(gl, `
+
+	#version 300 es
+	precision highp float;
+	
+	in vec3 color;
+	out vec4 FragColor;
+	
+	void main() {
+		FragColor = vec4(color, 1.0);
+	}
+
+`, GL.FRAGMENT_SHADER);
+
+// ========================<-------------------------------------------->======================== //
+// WebGL initialization (2) - Programs
+
+// Program for solid objects seen by the camera
+programs.solidCylinder = new Program(gl, shaders.vertex.solidCylinder, shaders.fragment.solid,
+	'projection', 'world', 'rVals', 'zVals', 'cylinder_color', 'stripe_color');
+
 programs.colorCylinder = new Program(glPick, shaders.vertex.colorCylinder, shaders.fragment.color,
 	'projection', 'world', 'rVals', 'zVals', 'color', 'pixelCapture');
 
+programs.line = new Program(gl, shaders.vertex.line, shaders.fragment.line, 'projection', 'world');
+
+// ========================<-------------------------------------------->======================== //
+// WebGL initialization (3) - Geometries
+
+geometries.solidCylinder = buildSolidCylinderGeometry();
 geometries.colorCylinder = buildClickCylinderGeometry();
+geometries.xAxis = buildCenterLine(1, 0, 0, 0.9, 0.15, 0.15);
+geometries.yAxis = buildCenterLine(0, 1, 0, 0.0, 0.6, 0.2);
+geometries.zAxis = buildCenterLine(0, 0, 1, 0.2, 0.2, 0.9);
 
 // End of file
 // ========================<-------------------------------------------->======================== //

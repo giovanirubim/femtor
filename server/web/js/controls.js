@@ -10,6 +10,26 @@ import * as selection from './selection.js';
 import animate from './animate.js';
 
 // ========================<-------------------------------------------->======================== //
+// Constantes matemáticas
+
+// Constante que ao multiplicar por uma rotação em radianos obtem-se como resultado a mesma rotação
+// em graus
+const TO_DEG = 180/Math.PI;
+
+// Constante que ao multiplicar por uma rotação em graus obtem-se como resultado a mesma rotação em
+// radianos
+const TO_RAD = Math.PI/180;
+
+// ========================<-------------------------------------------->======================== //
+// Funções auxiliares
+
+// Transforma uma função linear numa função 'suave' (variação senóide)
+const smooth = x => (1 - Math.cos(Math.PI*x))*0.5;
+
+// Arredonda uma rotação em radianos para um equivalente em graus múltiplo de step
+const roundDeg = (rad, step = 5) => Math.round(rad*(TO_DEG/step))*(TO_RAD*step);
+
+// ========================<-------------------------------------------->======================== //
 
 // Distância mínima que o cursor deve ser movido em pixels para que um evento de clicar e arrastar
 // seja iniciado
@@ -20,9 +40,6 @@ const animation = {
 	home: null,
 	perspective: null
 };
-
-// Transforma uma função linear numa função 'suave' (variação senóide)
-const smooth = x => (1 - Math.cos(Math.PI*x))*0.5;
 
 // Animação home
 const animateHome = () => {
@@ -177,7 +194,8 @@ const bindMouseControls = () => {
 			// Rotaciona o modelo
 			const {rotation0, rotation1} = click;
 			const rotation2 = view3d.getRotationAt(x, y);
-			view3d.setRotation(rotation0 + rotation2 - rotation1);
+			const value = rotation0 + rotation2 - rotation1;
+			view3d.setRotation(e.ctrlKey? roundDeg(value): value);
 		}
 	});
 
