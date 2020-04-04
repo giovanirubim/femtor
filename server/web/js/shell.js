@@ -16,8 +16,8 @@ import * as selection from './selection.js';
 // ========================<-------------------------------------------->======================== //
 // Métodos públicos de manipulação do projeto
 
+// Busca um objeto e seu tipo a partir do objeto ou de seu id
 export const get = arg => project.get(arg);
-export const getType = arg => project.get(arg).type;
 
 // Insere um eixo a partir dos dados contidos no objeto data
 export const addAxis = data => {

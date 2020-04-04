@@ -240,6 +240,7 @@ cmdkey.bind({key: 'e'}, () => {
 
 cmdkey.bind({key: 'delete'}, () => {
 	selection.each('axis_instance', shell.remove);
+	shell.storeLocal();
 });
 
 // ========================<-------------------------------------------->======================== //
